@@ -32,8 +32,8 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
 
 aws:
-  accessKeyId: "AKIAXF6BG5TRL4N42FNU"
-  secretKey: "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"
-  region: ap-southeast-1
+  accessKeyId: ${AWS_ACCESS_KEY_ID}
+  secretKey: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
   s3:
-    bucketName: lake-side-hotel-spring-boot
+    bucketName: ${AWS_S3_BUCKET}
