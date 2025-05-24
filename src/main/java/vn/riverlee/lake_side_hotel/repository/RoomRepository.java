@@ -22,4 +22,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findAllWithImageKeys();
 
     List<Room> findByType (String roomType, Pageable pageable);
+
+    long countByType(String type);
+
+    void deleteById(Long id);
 }

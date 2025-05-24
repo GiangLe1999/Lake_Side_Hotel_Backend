@@ -12,6 +12,7 @@ import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
+import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.service.RoomService;
 
 import java.io.IOException;
@@ -30,23 +31,30 @@ public class RoomController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public DataResponse<Long> addNewRoom(@Valid @ModelAttribute RoomRequest request) throws IOException {
         log.info("Add room request, type = {} vs price = {}", request.getType(), request.getPrice());
-        long roomId = roomService.addNewRoom(request);
+        Long roomId = roomService.addNewRoom(request);
         return new DataResponse<>(HttpStatus.CREATED.value(), "Create room successfully", roomId);
     }
 
-    @GetMapping(value = "/types")
+    @GetMapping("/types")
     public DataResponse<List<String>> getRoomTypes() {
         log.info("Get room types");
         List<String> roomTypes = roomService.getRoomTypes();
         return new DataResponse<>(HttpStatus.OK.value(), "Get room types successfully", roomTypes);
     }
 
-    @GetMapping(value = "/filtered-by-type")
+    @GetMapping("/filtered-by-type")
     public DataResponse<PaginationResponse> getRoomsFilteredByRoomType(@RequestParam(defaultValue = "0", required = false) int pageNo,
                                                                        @Min(10) @RequestParam(defaultValue = "20", required = false) int pageSize,
                                                                        @RequestParam(required = false) String roomType) {
         log.info("Get rooms filtered by room type");
         PaginationResponse roomPaginationResponse = roomService.getRoomsFilteredByRoomType(pageNo, pageSize, roomType);
         return new DataResponse<>(HttpStatus.OK.value(), "Get rooms filtered by room type successfully", roomPaginationResponse);
+    }
+
+    @DeleteMapping("")
+    public DataResponse<Long> deleteRoom(@Valid @RequestParam() long id) throws ResourceNotFoundException {
+        log.info("Delete room with ID: {}", id);
+        Long roomId = roomService.deleteRoom(id);
+        return new DataResponse<>(HttpStatus.OK.value(), "Delete room successfully", roomId);
     }
 }

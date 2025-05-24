@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
+import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,4 +15,6 @@ public interface RoomService {
     List<String> getRoomTypes();
 
     PaginationResponse getRoomsFilteredByRoomType(int pageNo, int pageSize, String roomType);
+
+    Long deleteRoom(@Valid Long id) throws ResourceNotFoundException;
 }
