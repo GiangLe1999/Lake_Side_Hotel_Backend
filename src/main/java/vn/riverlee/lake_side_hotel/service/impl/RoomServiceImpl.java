@@ -1,11 +1,13 @@
 package vn.riverlee.lake_side_hotel.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
@@ -108,7 +110,53 @@ public class RoomServiceImpl implements RoomService {
         // 4. Xóa room trong DB
         roomRepository.deleteById(id);
 
+
         // 5. Trả về ID đã xóa
         return id;
+    }
+
+    @Override
+    public RoomResponse getRoom(long id) throws ResourceNotFoundException {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
+
+        return RoomResponse.builder().id(room.getId()).type(room.getType()).price(room.getPrice()).thumbnailKey(room.getThumbnailKey()).imageKeys(room.getImageKeys()).build();
+    }
+
+    // @Transactional để đảm bảo rollback nếu có lỗi
+    @Override
+    @Transactional
+    public Long editRoom(long id, EditRoomRequest request) throws IOException {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
+
+        // Update type nếu có
+        if (request.getType() != null) {
+            room.setType(request.getType());
+        }
+
+        // Update price nếu có
+        if (request.getPrice() != null) {
+            room.setPrice(request.getPrice());
+        }
+
+        // Update thumbnail nếu có
+        if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
+            s3Service.deleteFile(room.getThumbnailKey());
+            String newThumbnailKey = s3Service.uploadFile(request.getThumbnail());
+            room.setThumbnailKey(newThumbnailKey);
+        }
+
+        // Update images nếu có
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            // Xử lý lưu ảnh, ví dụ như lưu list URL
+           s3Service.deleteMultipleFiles(room.getImageKeys());
+            List<String> newImageKeys = s3Service.uploadMultipleFiles(request.getImages());
+            room.setImageKeys(newImageKeys);
+        }
+
+        roomRepository.save(room); // Cập nhật vào DB
+
+        return room.getId();
     }
 }

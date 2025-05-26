@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
@@ -51,10 +52,24 @@ public class RoomController {
         return new DataResponse<>(HttpStatus.OK.value(), "Get rooms filtered by room type successfully", roomPaginationResponse);
     }
 
-    @DeleteMapping("")
-    public DataResponse<Long> deleteRoom(@Valid @RequestParam() long id) throws ResourceNotFoundException {
+    @DeleteMapping("/{id}")
+    public DataResponse<Long> deleteRoom(@Min(1) @PathVariable long id) throws ResourceNotFoundException {
         log.info("Delete room with ID: {}", id);
         Long roomId = roomService.deleteRoom(id);
         return new DataResponse<>(HttpStatus.OK.value(), "Delete room successfully", roomId);
+    }
+
+    @GetMapping("/{id}")
+    public DataResponse<RoomResponse> getRoom(@Min(1) @PathVariable long id) throws ResourceNotFoundException {
+        log.info(" room with ID: {}", id);
+        RoomResponse room = roomService.getRoom(id);
+        return new DataResponse<>(HttpStatus.OK.value(), "Get room successfully", room);
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public DataResponse<Long> editRoom(@Min(1) @PathVariable long id, @Valid @ModelAttribute EditRoomRequest request) throws ResourceNotFoundException, IOException {
+        log.info("Edit room with ID: {}", id);
+        Long roomId = roomService.editRoom(id, request);
+        return new DataResponse<>(HttpStatus.OK.value(), "Update room successfully", roomId);
     }
 }
