@@ -20,6 +20,30 @@ public class Room extends AbstractEntity {
     @Column(name = "type")
     private String type;
 
+    @Column(name = "summary")
+    private String summary;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "area")
+    private BigDecimal area;
+
+    @Column(name = "beds")
+    private String beds;
+
+    @ElementCollection
+    @CollectionTable(name = "tbl_room_amenities", joinColumns = @JoinColumn(name = "room_id")
+    )
+    @Column(name = "amenities")
+    private List<String> amenities;
+
+    @Column(name = "avg_rating")
+    private BigDecimal avg_rating;
+
+    @Column(name = "review_count")
+    private Integer reviewCount;
+
     @Column(name = "price")
     private BigDecimal price;
 
@@ -72,6 +96,13 @@ public class Room extends AbstractEntity {
     // Custom Builder
     public static class RoomBuilder {
         private String type;
+        private String summary;
+        private String description;
+        private BigDecimal area;
+        private String beds;
+        private List<String> amenities = new ArrayList<>();
+        private BigDecimal avgRating = new BigDecimal("0.0");
+        private Integer reviewCount = 0;
         private BigDecimal price;
         private boolean isBooked = false;
         private String thumbnailKey;
@@ -80,6 +111,46 @@ public class Room extends AbstractEntity {
 
         public RoomBuilder type(String type) {
             this.type = type;
+            return this;
+        }
+
+        public RoomBuilder summary(String summary) {
+            this.summary = summary;
+            return this;
+        }
+
+        public RoomBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public RoomBuilder area(BigDecimal area) {
+            this.area = area;
+            return this;
+        }
+
+        public RoomBuilder beds(String beds) {
+            this.beds = beds;
+            return this;
+        }
+
+        public RoomBuilder amenities(List<String> amenities) {
+            this.amenities = amenities;
+            return this;
+        }
+
+        public RoomBuilder addAmenity(String amenity) {
+            this.amenities.add(amenity);
+            return this;
+        }
+
+        public RoomBuilder avgRating(BigDecimal avgRating) {
+            this.avgRating = avgRating;
+            return this;
+        }
+
+        public RoomBuilder reviewCount(Integer reviewCount) {
+            this.reviewCount = reviewCount;
             return this;
         }
 
@@ -121,6 +192,13 @@ public class Room extends AbstractEntity {
         public Room build() {
             Room room = new Room();
             room.setType(this.type);
+            room.setSummary(this.summary);
+            room.setDescription(this.description);
+            room.setArea(this.area);
+            room.setBeds(this.beds);
+            room.setAmenities(this.amenities);
+            room.setAvg_rating(this.avgRating);
+            room.setReviewCount(this.reviewCount);
             room.setPrice(this.price);
             room.setBooked(this.isBooked);
             room.setThumbnailKey(this.thumbnailKey);
@@ -135,13 +213,20 @@ public class Room extends AbstractEntity {
     }
 
     /*
-     * Room room = Room.builder()
-     *     .type("Deluxe")
-     *     .price(new BigDecimal("1500000"))
-     *     .thumbnailKey("deluxe-thumb.jpg")
-     *     .addImageKey("deluxe-1.jpg")
-     *     .addImageKey("deluxe-2.jpg")
-     *     .isBooked(false)
-     *     .build();
+    Room room = Room.builder()
+        .type("Deluxe")
+        .summary("Phòng sang trọng và tiện nghi")
+        .description("Có ban công, view hồ tuyệt đẹp, bao gồm bữa sáng")
+        .area(new BigDecimal("35.5"))
+        .beds("1 Queen Bed")
+        .addAmenity("Wi-Fi miễn phí")
+        .addAmenity("TV màn hình phẳng")
+        .avgRating(new BigDecimal("4.5"))
+        .reviewCount(120)
+        .price(new BigDecimal("1500000"))
+        .thumbnailKey("deluxe-thumb.jpg")
+        .addImageKey("deluxe-1.jpg")
+        .isBooked(false)
+        .build();
      */
 }

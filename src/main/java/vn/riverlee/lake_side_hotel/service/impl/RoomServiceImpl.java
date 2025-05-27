@@ -43,6 +43,11 @@ public class RoomServiceImpl implements RoomService {
         // Tạo và lưu Room
         Room room = Room.builder()
                 .type(request.getType())
+                .summary(request.getSummary())
+                .description(request.getDescription())
+                .area(request.getArea())
+                .beds(request.getBeds())
+                .amenities(request.getAmenities())
                 .price(request.getPrice())
                 .thumbnailKey(thumbnailKey)
                 .imageKeys(imageKeys)

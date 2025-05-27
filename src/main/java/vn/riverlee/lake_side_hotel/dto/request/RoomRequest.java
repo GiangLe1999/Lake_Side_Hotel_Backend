@@ -11,8 +11,24 @@ import java.util.List;
 @Getter
 @Setter
 public class RoomRequest implements Serializable {
-    @NotBlank(message = "Room type can not empty")
+    @NotBlank(message = "Room type can not be empty")
     private String type;
+
+    @NotBlank(message = "Room summary can not be empty")
+    private String summary;
+
+    @NotBlank(message = "Room description can not be empty")
+    private String description;
+
+    @NotNull(message = "Area is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Area must be greater than 0")
+    private BigDecimal area;
+
+    @NotBlank(message = "Bed info can not be empty")
+    private String beds;
+
+    @NotEmpty(message = "At least one amenity is required")
+    private List<@NotBlank(message = "Amenity can not be blank") String> amenities;
 
     @NotNull(message = "Thumbnail image is required")
     private MultipartFile thumbnail;
