@@ -14,6 +14,11 @@ import java.util.List;
 public class RoomResponse {
     private Long id;
     private String type;
+    private String summary;
+    private String description;
+    private BigDecimal area;
+    private String beds;
+    private List<String> amenities;
     private BigDecimal price;
     private boolean isBooked;
     private String thumbnailKey;

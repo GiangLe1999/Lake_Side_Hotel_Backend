@@ -61,9 +61,16 @@ public class RoomController {
 
     @GetMapping("/{id}")
     public DataResponse<RoomResponse> getRoom(@Min(1) @PathVariable long id) throws ResourceNotFoundException {
-        log.info(" room with ID: {}", id);
+        log.info("Get room with ID: {}", id);
         RoomResponse room = roomService.getRoom(id);
         return new DataResponse<>(HttpStatus.OK.value(), "Get room successfully", room);
+    }
+
+    @GetMapping("/admin/{id}")
+    public DataResponse<RoomResponse> getRoomForAdmin(@Min(1) @PathVariable long id) throws ResourceNotFoundException {
+        log.info("Get room for admin with ID: {}", id);
+        RoomResponse room = roomService.getRoomForAdmin(id);
+        return new DataResponse<>(HttpStatus.OK.value(), "Get room for admin successfully", room);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

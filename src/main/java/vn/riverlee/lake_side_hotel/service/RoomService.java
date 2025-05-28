@@ -22,5 +22,8 @@ public interface RoomService {
 
     RoomResponse getRoom(@Min(1) long id);
 
+    RoomResponse getRoomForAdmin(@Min(1) long id);
+
     Long editRoom(@Min(1) long id, @Valid EditRoomRequest request) throws IOException;
+
 }

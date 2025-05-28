@@ -125,22 +125,67 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
 
-        return RoomResponse.builder().id(room.getId()).type(room.getType()).price(room.getPrice()).thumbnailKey(room.getThumbnailKey()).imageKeys(room.getImageKeys()).build();
+        return RoomResponse.builder().id(room.getId())
+                .type(room.getType()).price(room.getPrice())
+                .thumbnailKey(room.getThumbnailKey())
+                .imageKeys(room.getImageKeys()).build();
+    }
+
+    @Override
+    public RoomResponse getRoomForAdmin(long id) throws ResourceNotFoundException {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
+
+        return RoomResponse.builder().id(room.getId())
+                .type(room.getType())
+                .summary(room.getSummary())
+                .description(room.getDescription())
+                .area(room.getArea())
+                .beds(room.getBeds())
+                .amenities(room.getAmenities())
+                .price(room.getPrice())
+                .thumbnailKey(room.getThumbnailKey())
+                .imageKeys(room.getImageKeys()).build();
     }
 
     // @Transactional để đảm bảo rollback nếu có lỗi
     @Override
-    @Transactional
+    @Transactional // Đảm bảo rollback nếu có lỗi
     public Long editRoom(long id, EditRoomRequest request) throws IOException {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
 
-        // Update type nếu có
+        // Update type
         if (request.getType() != null) {
             room.setType(request.getType());
         }
 
-        // Update price nếu có
+        // Update summary
+        if (request.getSummary() != null) {
+            room.setSummary(request.getSummary());
+        }
+
+        // Update description
+        if (request.getDescription() != null) {
+            room.setDescription(request.getDescription());
+        }
+
+        // Update area
+        if (request.getArea() != null) {
+            room.setArea(request.getArea());
+        }
+
+        // Update beds
+        if (request.getBeds() != null) {
+            room.setBeds(request.getBeds());
+        }
+
+        // Update amenities
+        if (request.getAmenities() != null && !request.getAmenities().isEmpty()) {
+            room.setAmenities(request.getAmenities());
+        }
+
+        // Update price
         if (request.getPrice() != null) {
             room.setPrice(request.getPrice());
         }
@@ -154,14 +199,12 @@ public class RoomServiceImpl implements RoomService {
 
         // Update images nếu có
         if (request.getImages() != null && !request.getImages().isEmpty()) {
-            // Xử lý lưu ảnh, ví dụ như lưu list URL
-           s3Service.deleteMultipleFiles(room.getImageKeys());
+            s3Service.deleteMultipleFiles(room.getImageKeys());
             List<String> newImageKeys = s3Service.uploadMultipleFiles(request.getImages());
             room.setImageKeys(newImageKeys);
         }
 
-        roomRepository.save(room); // Cập nhật vào DB
-
+        roomRepository.save(room);
         return room.getId();
     }
 }
