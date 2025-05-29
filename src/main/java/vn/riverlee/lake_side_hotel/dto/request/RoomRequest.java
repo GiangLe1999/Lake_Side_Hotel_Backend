@@ -24,6 +24,11 @@ public class RoomRequest implements Serializable {
     @NotBlank(message = "Room description can not be empty")
     private String description;
 
+    @NotNull(message = "Total rooms is required")
+    @Min(value = 1, message = "Total rooms must be at least 1")
+    // Nếu client không truyền, nó sẽ có giá trị mặc định là 1, qua được validation
+    private Integer totalRooms;
+
     @NotNull(message = "Area is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Area must be greater than 0")
     @Digits(integer = 6, fraction = 2, message = "Area format is invalid (max 6 digits before decimal, 2 after)")

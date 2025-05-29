@@ -16,7 +16,7 @@ public interface RoomService {
 
     List<String> getRoomTypes();
 
-    PaginationResponse getRoomsFilteredByRoomType(int pageNo, int pageSize, String roomType);
+    PaginationResponse<Object> getRoomsFilteredByRoomType(int pageNo, int pageSize, String roomType);
 
     Long deleteRoom(@Valid Long id) throws ResourceNotFoundException;
 
@@ -26,4 +26,5 @@ public interface RoomService {
 
     Long editRoom(@Min(1) long id, @Valid EditRoomRequest request) throws IOException;
 
+    PaginationResponse<Object> getRooms(int pageNo, int pageSize);
 }

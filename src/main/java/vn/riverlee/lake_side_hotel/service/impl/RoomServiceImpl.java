@@ -3,8 +3,8 @@ package vn.riverlee.lake_side_hotel.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
@@ -48,6 +48,7 @@ public class RoomServiceImpl implements RoomService {
                 .area(request.getArea())
                 .beds(request.getBeds())
                 .amenities(request.getAmenities())
+                .totalRooms(request.getTotalRooms())
                 .price(request.getPrice())
                 .thumbnailKey(thumbnailKey)
                 .imageKeys(imageKeys)
@@ -63,25 +64,20 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public PaginationResponse<?> getRoomsFilteredByRoomType(int pageNo, int pageSize, String roomType) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt"));
-
-        List<Room> rooms;
-        long totalItems;
-
+    public PaginationResponse<Object> getRoomsFilteredByRoomType(int pageNo, int pageSize, String roomType) {
+        Page<Room> page;
         if (roomType == null || roomType.trim().isEmpty()) {
-            rooms = roomRepository.findAll(pageable).getContent(); // Trả về tất cả phòng
-            totalItems = roomRepository.count(); // Đếm tổng tất cả phòng
+            page = roomRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by("createdAt")));
         } else {
-            rooms = roomRepository.findByType(roomType, pageable);
-            totalItems = roomRepository.countByType(roomType); // Đếm tổng các phòng theo loại
+            page = roomRepository.findByType(roomType, PageRequest.of(pageNo, pageSize, Sort.by("createdAt")));
         }
 
-        List<RoomResponse> roomResponse = rooms.stream()
+        List<RoomResponse> roomResponse = page.stream()
                 .map(room -> RoomResponse.builder()
                         .id(room.getId())
                         .type(room.getType())
                         .price(room.getPrice())
+                        .totalRooms(room.getTotalRooms())
                         .createdAt(room.getCreatedAt())
                         .build())
                 .toList();
@@ -89,7 +85,7 @@ public class RoomServiceImpl implements RoomService {
         return PaginationResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalItems / pageSize))
+                .totalPages(page.getTotalPages())
                 .items(roomResponse)
                 .build();
     }
@@ -114,7 +110,6 @@ public class RoomServiceImpl implements RoomService {
 
         // 4. Xóa room trong DB
         roomRepository.deleteById(id);
-
 
         // 5. Trả về ID đã xóa
         return id;
@@ -143,6 +138,7 @@ public class RoomServiceImpl implements RoomService {
                 .area(room.getArea())
                 .beds(room.getBeds())
                 .amenities(room.getAmenities())
+                .totalRooms(room.getTotalRooms())
                 .price(room.getPrice())
                 .thumbnailKey(room.getThumbnailKey())
                 .imageKeys(room.getImageKeys()).build();
@@ -185,6 +181,11 @@ public class RoomServiceImpl implements RoomService {
             room.setAmenities(request.getAmenities());
         }
 
+        // Update total rooms
+        if (request.getTotalRooms() != null) {
+            room.setTotalRooms(request.getTotalRooms());
+        }
+
         // Update price
         if (request.getPrice() != null) {
             room.setPrice(request.getPrice());
@@ -206,5 +207,33 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.save(room);
         return room.getId();
+    }
+
+    @Override
+    public PaginationResponse<Object> getRooms(int pageNo, int pageSize) {
+        Page<Room> page = roomRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by("avgRating")));
+
+        List<RoomResponse> roomResponse = page.stream()
+                .map(room -> RoomResponse.builder()
+                        .id(room.getId())
+                        .type(room.getType())
+                        .summary(room.getSummary())
+                        .description(room.getDescription())
+                        .area(room.getArea())
+                        .beds(room.getBeds())
+                        .amenities(room.getAmenities())
+                        .thumbnailKey(room.getThumbnailKey())
+                        .imageKeys(room.getImageKeys())
+                        .price(room.getPrice())
+                        .createdAt(room.getCreatedAt())
+                        .build())
+                .toList();
+
+        return PaginationResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(page.getTotalPages())
+                .items(roomResponse)
+                .build();
     }
 }

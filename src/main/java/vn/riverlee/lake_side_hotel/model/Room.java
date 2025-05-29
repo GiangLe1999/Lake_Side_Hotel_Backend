@@ -39,7 +39,7 @@ public class Room extends AbstractEntity {
     private List<String> amenities;
 
     @Column(name = "avg_rating")
-    private BigDecimal avg_rating;
+    private BigDecimal avgRating;
 
     @Column(name = "review_count")
     private Integer reviewCount;
@@ -47,8 +47,8 @@ public class Room extends AbstractEntity {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "is_booked")
-    private boolean isBooked = false;
+    @Column(name = "total_rooms")
+    private Integer totalRooms;
 
     @Column(name = "thumbnail_key")
     private String thumbnailKey;
@@ -79,8 +79,6 @@ public class Room extends AbstractEntity {
         this.bookings.add(booking);
         booking.setRoom(this);
 
-        this.setBooked(true);
-
         String bookingConfirmationCode = RandomStringUtils.randomNumeric(10);
         booking.setConfirmationCode(bookingConfirmationCode);
     }
@@ -104,7 +102,7 @@ public class Room extends AbstractEntity {
         private BigDecimal avgRating = new BigDecimal("0.0");
         private Integer reviewCount = 0;
         private BigDecimal price;
-        private boolean isBooked = false;
+        private Integer totalRooms = 1;
         private String thumbnailKey;
         private List<String> imageKeys = new ArrayList<>();
         private List<Booking> bookings = new ArrayList<>();
@@ -159,8 +157,8 @@ public class Room extends AbstractEntity {
             return this;
         }
 
-        public RoomBuilder isBooked(boolean isBooked) {
-            this.isBooked = isBooked;
+        public RoomBuilder totalRooms(Integer totalRooms) {
+            this.totalRooms = totalRooms;
             return this;
         }
 
@@ -197,10 +195,10 @@ public class Room extends AbstractEntity {
             room.setArea(this.area);
             room.setBeds(this.beds);
             room.setAmenities(this.amenities);
-            room.setAvg_rating(this.avgRating);
+            room.setAvgRating(this.avgRating);
             room.setReviewCount(this.reviewCount);
             room.setPrice(this.price);
-            room.setBooked(this.isBooked);
+            room.setTotalRooms(this.totalRooms);
             room.setThumbnailKey(this.thumbnailKey);
             room.setImageKeys(this.imageKeys);
             room.setBookings(this.bookings);
@@ -226,7 +224,7 @@ public class Room extends AbstractEntity {
         .price(new BigDecimal("1500000"))
         .thumbnailKey("deluxe-thumb.jpg")
         .addImageKey("deluxe-1.jpg")
-        .isBooked(false)
+        .totalRooms(1)
         .build();
      */
 }
