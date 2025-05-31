@@ -1,9 +1,11 @@
 package vn.riverlee.lake_side_hotel.controller;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -36,11 +38,19 @@ public class BookingController {
 //        return new DataResponse<>(HttpStatus.OK.value(), "Get booking by confirmation code successfully");
 //    }
 //
-//    @PostMapping(value = "")
-//    public DataResponse<Long> addBooking(@Valid @RequestBody BookingRequest request) {
-//        log.info("Add new booking.");
-//        return new DataResponse<>(HttpStatus.CREATED.value(), "Add new booking successfully");
-//    }
+    @PostMapping(value = "")
+    public DataResponse<Long> addBooking(@Valid @RequestBody BookingRequest request) throws BadRequestException, MessagingException {
+        log.info("Add new booking for room with ID: {}", request.getRoomId());
+        Long bookingId = bookingService.addBooking(request);
+        return new DataResponse<>(HttpStatus.CREATED.value(), "Add new booking vs confirmation code successfully", bookingId);
+    }
+
+    @PutMapping(value = "/resend-confirmation-code/{id}")
+    public DataResponse<Long> resendConfirmationCode(@Min(1) @PathVariable long id, @Valid @RequestBody BookingRequest request) throws BadRequestException, MessagingException {
+        log.info("Resend confirmation code for new booking with ID: {}", request.getRoomId());
+        Long bookingId = bookingService.resendConfirmationCode(id, request);
+        return new DataResponse<>(HttpStatus.OK.value(), "Resend confirmation code for new booking successfully", bookingId);
+    }
 //
 //    @DeleteMapping(value = "/{id}")
 //    public DataResponse<Long> deleteBooking(@Min(1) @PathVariable long id) {

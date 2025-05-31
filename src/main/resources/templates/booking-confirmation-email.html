@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - LuxuryStay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1e3c72;
+        }
+
+        .confirmation-code {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .confirmation-code h2 {
+            font-size: 14px;
+            font-weight: normal;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .confirmation-code .code {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .booking-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .booking-details h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+        }
+
+        .detail-value {
+            flex: 1;
+            text-align: right;
+            font-weight: 500;
+            color: #1e3c72;
+        }
+
+        .guest-info {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .guest-info h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .guest-detail {
+            margin-bottom: 8px;
+        }
+
+        .guest-detail strong {
+            color: #856404;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .important-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .important-info h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .important-info ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .important-info li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .important-info li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0c5460;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .contact-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-info p {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 5px;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <!-- Header -->
+    <div class="header">
+        <h1>LuxuryStay</h1>
+        <p>Your Premium Hotel Experience</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="greeting">
+            Dear <span th:text="${guestName}">Guest Name</span>,
+        </div>
+
+        <p>Thank you for choosing LuxuryStay! We are delighted to confirm your reservation. Your booking has been successfully processed and we look forward to welcoming you.</p>
+
+        <!-- Confirmation Code -->
+        <div class="confirmation-code">
+            <h2>BOOKING CONFIRMATION CODE</h2>
+            <div class="code" th:text="${confirmationCode}">ABC123DEF</div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="booking-details">
+            <h3>Reservation Details</h3>
+
+            <div class="detail-row">
+                <div class="detail-label">Room Type: </div>
+                <div class="detail-value" th:text="${roomType}">Deluxe Ocean View</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Number of Guests: </div>
+                <div class="detail-value" th:text="${numberOfGuests}">2</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Check-in Date: </div>
+                <div class="detail-value" th:text="${checkinDate}">Friday, June 15, 2024</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Check-out Date: </div>
+                <div class="detail-value" th:text="${checkoutDate}">Sunday, June 17, 2024</div>
+            </div>
+        </div>
+
+        <!-- Guest Information -->
+        <div class="guest-info">
+            <h3>Guest Information</h3>
+            <div class="guest-detail">
+                <strong>Name:</strong> <span th:text="${guestName}">John Doe</span>
+            </div>
+            <div class="guest-detail">
+                <strong>Phone:</strong> <span th:text="${phoneNumber}">+1 234 567 8900</span>
+            </div>
+            <div class="guest-detail">
+                <strong>Email:</strong> <span th:text="${email}">john.doe@example.com</span>
+            </div>
+        </div>
+
+        <!-- Important Information -->
+        <div class="important-info">
+            <h4>Important Information</h4>
+            <ul>
+                <li>Please present this confirmation code and a valid ID at check-in</li>
+                <li>Cancellation policy: Free cancellation up to 24 hours before check-in</li>
+                <li>For any changes or inquiries, please contact us with your confirmation code</li>
+            </ul>
+        </div>
+
+        <p>We are committed to making your stay memorable and comfortable. If you have any special requests or need assistance, please don't hesitate to contact our guest services team.</p>
+
+        <p style="margin-top: 20px;">We look forward to welcoming you to LuxuryStay!</p>
+
+        <p style="margin-top: 20px; font-weight: 600;">Best regards,<br>
+            The LuxuryStay Team</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>LuxuryStay Hotel</strong></p>
+        <p>Your Premium Destination</p>
+
+        <div class="contact-info">
+            <p><strong>Contact Information</strong></p>
+            <p>Email: reservations@luxurystay.com</p>
+            <p>Phone: +1 (555) 123-4567</p>
+            <p>Website: www.luxurystay.com</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -2,12 +2,16 @@ package vn.riverlee.lake_side_hotel.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import vn.riverlee.lake_side_hotel.enums.BookingStatus;
+import vn.riverlee.lake_side_hotel.enums.PaymentStatus;
+import vn.riverlee.lake_side_hotel.enums.PaymentType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 @Entity(name = "Booking")
 @Table(name = "tbl_booking")
 public class Booking extends AbstractEntity {
@@ -17,121 +21,41 @@ public class Booking extends AbstractEntity {
     @Column(name = "check_out_date")
     private LocalDate checkOutDate;
 
-    @Column(name = "guest_full_name")
-    private String guestFullName;
+    @Column(name = "full_name")
+    private String fullName;
 
-    @Column(name = "guest_email")
-    private String guestEmail;
+    @Column(name = "email")
+    private String email;
 
-    @Column(name = "nums_of_adults")
-    private int numOfAdults;
+    @Column(name = "tel")
+    private String tel;
 
-    @Column(name = "nums_of_children")
-    private int numOfChildren;
-
-    @Column(name = "nums_of_guest")
+    @Column(name = "num_of_guest")
     private int numOfGuest;
+
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
 
     @Column(name = "confirmation_code")
     private String confirmationCode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_type")
+    private PaymentType paymentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "booking_status")
+    private BookingStatus bookingStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
 
-    public void calculateNumOfAdults (int numOfAdults) {
-        this.numOfAdults = numOfAdults;
-        calculateNumOfGuest();
-    }
-
-    public void calculateNumOfChildren (int numOfChildren) {
-        this.numOfChildren = numOfChildren;
-        calculateNumOfGuest();
-    }
-
-    public void calculateNumOfGuest() {
-        this.numOfGuest = this.numOfAdults + this.numOfChildren;
-    }
-
-    public static class BookingBuilder {
-        private LocalDate checkInDate;
-        private LocalDate checkOutDate;
-        private String guestFullName;
-        private String guestEmail;
-        private int numOfAdults;
-        private int numOfChildren;
-        private String confirmationCode;
-        private Room room;
-
-        public BookingBuilder checkInDate(LocalDate checkInDate) {
-            this.checkInDate = checkInDate;
-            return this;
-        }
-
-        public BookingBuilder checkOutDate(LocalDate checkOutDate) {
-            this.checkOutDate = checkOutDate;
-            return this;
-        }
-
-        public BookingBuilder guestFullName(String guestFullName) {
-            this.guestFullName = guestFullName;
-            return this;
-        }
-
-        public BookingBuilder guestEmail(String guestEmail) {
-            this.guestEmail = guestEmail;
-            return this;
-        }
-
-        public BookingBuilder numOfAdults(int numOfAdults) {
-            this.numOfAdults = numOfAdults;
-            return this;
-        }
-
-        public BookingBuilder numOfChildren(int numOfChildren) {
-            this.numOfChildren = numOfChildren;
-            return this;
-        }
-
-        public BookingBuilder confirmationCode(String confirmationCode) {
-            this.confirmationCode = confirmationCode;
-            return this;
-        }
-
-        public BookingBuilder room(Room room) {
-            this.room = room;
-            return this;
-        }
-
-        public Booking build() {
-            Booking booking = new Booking();
-            booking.setCheckInDate(this.checkInDate);
-            booking.setCheckOutDate(this.checkOutDate);
-            booking.setGuestFullName(this.guestFullName);
-            booking.setGuestEmail(this.guestEmail);
-            booking.setNumOfAdults(this.numOfAdults);
-            booking.setNumOfChildren(this.numOfChildren);
-            booking.setConfirmationCode(this.confirmationCode);
-            booking.setRoom(this.room);
-            booking.calculateNumOfGuest(); // đảm bảo numOfGuest được tính đúng
-            return booking;
-        }
-    }
-
-    public static BookingBuilder builder() {
-        return new BookingBuilder();
-    }
-
-    /*
-     * Booking booking = Booking.builder()
-     *     .checkInDate(LocalDate.of(2025, 5, 20))
-     *     .checkOutDate(LocalDate.of(2025, 5, 25))
-     *     .guestFullName("Nguyen Van A")
-     *     .guestEmail("a@gmail.com")
-     *     .numOfAdults(2)
-     *     .numOfChildren(1)
-     *     .confirmationCode("CONF123")
-     *     .room(room)
-     *     .build();
-     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

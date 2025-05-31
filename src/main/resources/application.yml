@@ -23,13 +23,24 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       pool-name: MyHikariCP
-
   jpa:
     hibernate:
       ddl-auto: update
       format-sql: true
     show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
+  mail:
+    from: ${SMTP_FROM}
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_MAIL}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 aws:
   accessKeyId: ${AWS_ACCESS_KEY_ID}
@@ -40,3 +51,8 @@ aws:
 
 frontend:
   url: ${FRONTEND_URL}
+
+priceInfo:
+  serviceFee: 29
+  taxes: 0.1
+

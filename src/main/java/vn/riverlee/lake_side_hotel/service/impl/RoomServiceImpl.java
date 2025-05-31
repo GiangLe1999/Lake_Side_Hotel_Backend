@@ -120,8 +120,16 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
 
-        return RoomResponse.builder().id(room.getId())
-                .type(room.getType()).price(room.getPrice())
+        return RoomResponse.builder()
+                .id(room.getId())
+                .type(room.getType())
+                .summary(room.getSummary())
+                .description(room.getDescription())
+                .area(room.getArea())
+                .beds(room.getBeds())
+                .amenities(room.getAmenities())
+                .totalRooms(room.getTotalRooms())
+                .price(room.getPrice())
                 .thumbnailKey(room.getThumbnailKey())
                 .imageKeys(room.getImageKeys()).build();
     }
@@ -131,7 +139,8 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
 
-        return RoomResponse.builder().id(room.getId())
+        return RoomResponse.builder()
+                .id(room.getId())
                 .type(room.getType())
                 .summary(room.getSummary())
                 .description(room.getDescription())
