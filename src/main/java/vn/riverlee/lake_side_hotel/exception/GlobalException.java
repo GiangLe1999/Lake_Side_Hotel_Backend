@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -264,6 +265,43 @@ public class GlobalException {
         errorResponse.setStatus(INTERNAL_SERVER_ERROR.value());
         errorResponse.setError("File Processing Error");
         errorResponse.setMessage("Error processing file: " + e.getMessage());
+        return errorResponse;
+    }
+
+    /**
+     * Handle exception when request is invalid (400 Bad Request)
+     *
+     * @param e       the BadRequestException
+     * @param request the web request
+     * @return error response
+     */
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = {@Content(mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "400 Response",
+                                    summary = "Handle bad request exception",
+                                    value = """
+                        {
+                          "timestamp": "2023-10-19T06:35:52.333+00:00",
+                          "status": 400,
+                          "path": "/api/v1/...",
+                          "error": "Bad Request",
+                          "message": "Invalid input provided"
+                        }
+                        """
+                            ))})
+    })
+    public ErrorResponse handleBadRequest(BadRequestException e, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(BAD_REQUEST.value());
+        errorResponse.setError(BAD_REQUEST.getReasonPhrase());
+        errorResponse.setMessage(e.getMessage());
+
         return errorResponse;
     }
 

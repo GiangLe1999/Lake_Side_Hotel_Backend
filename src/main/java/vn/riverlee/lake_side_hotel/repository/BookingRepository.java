@@ -12,6 +12,7 @@ import vn.riverlee.lake_side_hotel.model.Room;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -26,4 +27,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Modifying
     @Query("DELETE FROM Booking b WHERE b.bookingStatus = 'PENDING' AND b.createdAt < :cutoffTime")
     void deletePendingBookingsOlderThan(@Param("cutoffTime") LocalDateTime cutoffTime);
+
+    Optional<Booking> findByIdAndConfirmationCodeAndBookingStatus(Long id, String confirmationCode, BookingStatus bookingStatus);
 }

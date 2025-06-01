@@ -85,6 +85,15 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking).getId();
     }
 
+    @Override
+    public Long confirmBooking(long bookingId, String confirmationCode) throws BadRequestException {
+        Booking booking = bookingRepository.findByIdAndConfirmationCodeAndBookingStatus(bookingId, confirmationCode, BookingStatus.PENDING)
+                .orElseThrow(() -> new BadRequestException("The confirmation code you entered is incorrect"));
+
+        booking.setBookingStatus(BookingStatus.CONFIRMED);
+        return bookingRepository.save(booking).getId();
+    }
+
     @Transactional
     @Scheduled(fixedRate = 3600000) // Chạy mỗi 1 tiếng
     public void deleteOldPendingBookings() {

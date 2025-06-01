@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "Booking")
 @Table(name = "tbl_booking")
 public class Booking extends AbstractEntity {
