@@ -11,8 +11,10 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import vn.riverlee.lake_side_hotel.annotations.EnumValid;
 import vn.riverlee.lake_side_hotel.dto.request.BookingRequest;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
+import vn.riverlee.lake_side_hotel.enums.PaymentType;
 import vn.riverlee.lake_side_hotel.service.BookingService;
 
 @Slf4j
@@ -54,6 +56,14 @@ public class BookingController {
         log.info("Confirm new booking with ID: {}", id);
         Long bookingId = bookingService.confirmBooking(id, confirmationCode);
         return new DataResponse<>(HttpStatus.OK.value(), "Confirm for booking successfully", bookingId);
+    }
+
+    @PutMapping(value = "/choose-payment-method/{id}")
+    public DataResponse<PaymentType> choosePaymentMethod(@Min(1) @PathVariable long id,
+                                                         @RequestParam @EnumValid(enumClass = PaymentType.class) String paymentMethod) throws BadRequestException {
+        log.info("Choose payment method for the booking with id: {}", id);
+        PaymentType paymentType = bookingService.choosePaymentMethod(id, paymentMethod);
+        return new DataResponse<>(HttpStatus.OK.value(), "Choose payment method for booking successfully", paymentType);
     }
 //
 //    @DeleteMapping(value = "/{id}")

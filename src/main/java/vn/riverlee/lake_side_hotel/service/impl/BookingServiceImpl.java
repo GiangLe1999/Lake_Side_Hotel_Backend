@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.BookingRequest;
 import vn.riverlee.lake_side_hotel.enums.BookingStatus;
+import vn.riverlee.lake_side_hotel.enums.PaymentStatus;
+import vn.riverlee.lake_side_hotel.enums.PaymentType;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.model.Booking;
 import vn.riverlee.lake_side_hotel.model.Room;
@@ -92,6 +94,23 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setBookingStatus(BookingStatus.CONFIRMED);
         return bookingRepository.save(booking).getId();
+    }
+
+    @Override
+    public PaymentType choosePaymentMethod(long bookingId, String paymentMethod) throws BadRequestException {
+        Booking booking = bookingRepository.findByIdAndBookingStatus(bookingId, BookingStatus.CONFIRMED)
+                .orElseThrow(() -> new BadRequestException("Booking not found"));
+
+        PaymentType paymentType;
+        try {
+            paymentType = PaymentType.valueOf(paymentMethod.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Unsupported payment method: " + paymentMethod);
+        }
+
+        booking.setPaymentType(paymentType);
+        booking.setPaymentStatus(PaymentStatus.PENDING);
+        return bookingRepository.save(booking).getPaymentType();
     }
 
     @Transactional

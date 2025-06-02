@@ -29,4 +29,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     void deletePendingBookingsOlderThan(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     Optional<Booking> findByIdAndConfirmationCodeAndBookingStatus(Long id, String confirmationCode, BookingStatus bookingStatus);
+
+    Optional<Booking> findByIdAndBookingStatus(Long id, BookingStatus bookingStatus);
 }
