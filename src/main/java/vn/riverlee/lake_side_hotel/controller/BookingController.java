@@ -25,18 +25,6 @@ import vn.riverlee.lake_side_hotel.service.BookingService;
 public class BookingController {
     private final BookingService bookingService;
 
-//    @GetMapping("")
-//    public DataResponse<BookingResponse> getBookings() {
-//        log.info("Get all bookings.");
-//        return new DataResponse<>(HttpStatus.OK.value(), "Get all bookings successfully");
-//    }
-//
-//    @GetMapping("")
-//    public DataResponse<BookingResponse> getBookingByConfirmationCode(@RequestParam() String confirmationCode) {
-//        log.info("Get booking by confirmation code.");
-//        return new DataResponse<>(HttpStatus.OK.value(), "Get booking by confirmation code successfully");
-//    }
-//
     @PostMapping(value = "")
     public DataResponse<Long> addBooking(@Valid @RequestBody BookingRequest request) throws BadRequestException, MessagingException {
         log.info("Add new booking for room with ID: {}", request.getRoomId());
@@ -65,10 +53,4 @@ public class BookingController {
         PaymentType paymentType = bookingService.choosePaymentMethod(id, paymentMethod);
         return new DataResponse<>(HttpStatus.OK.value(), "Choose payment method for booking successfully", paymentType);
     }
-//
-//    @DeleteMapping(value = "/{id}")
-//    public DataResponse<Long> deleteBooking(@Min(1) @PathVariable long id) {
-//        log.info("Delete booking.");
-//        return new DataResponse<>(HttpStatus.CREATED.value(), "Delete booking successfully");
-//    }
 }

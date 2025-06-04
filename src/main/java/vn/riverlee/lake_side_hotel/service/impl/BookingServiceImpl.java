@@ -32,10 +32,10 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
 
-    @Value("${priceInfo.serviceFee}")
+    @Value("${app.priceInfo.service-fee}")
     private String serviceFee;
 
-    @Value("${priceInfo.taxes}")
+    @Value("${app.priceInfo.taxes}")
     private String taxes;
 
     @Override
