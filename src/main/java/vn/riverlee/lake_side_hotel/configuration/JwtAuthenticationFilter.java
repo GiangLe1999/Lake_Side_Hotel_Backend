@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import vn.riverlee.lake_side_hotel.service.impl.UserServiceImpl;
+import vn.riverlee.lake_side_hotel.service.UserService;
 import vn.riverlee.lake_side_hotel.util.JwtUtil;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -24,9 +24,8 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtUtil jwtUtil;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     // doFilterInternal là nơi xử lý chính – Spring gọi hàm này mỗi khi có request đến.
     @Override
@@ -50,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Validate token
-        // SecurityContextHolder.getContext().getAuthentication() == null : chưa có ai login (Authentication chưa set)
+        // SecurityContextHolder.getContext().getAuthentication() == null : user chưa login (Authentication chưa set)
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userService.loadUserByUsername(username);
 

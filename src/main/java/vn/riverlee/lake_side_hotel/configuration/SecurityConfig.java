@@ -13,7 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import vn.riverlee.lake_side_hotel.service.impl.UserServiceImpl;
+import vn.riverlee.lake_side_hotel.oauth.OAuth2SuccessHandler;
+import vn.riverlee.lake_side_hotel.service.UserService;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -56,8 +57,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -93,21 +95,30 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         // Các endpoint không cần xác thực
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/bookings/**").permitAll()
-                        .requestMatchers("/api/rooms/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/bookings/public/**").permitAll()
+                        .requestMatchers("/rooms/public/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
 
                         // Các endpoint dành cho USER và ADMIN
-                        .requestMatchers("/api/bookings/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/profile/**").hasAnyAuthority("USER", "ADMIN")
 
                         // Các endpoint chỉ dành cho ADMIN
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/hotels/manage/**").hasAuthority("ADMIN")
 
                         // Tất cả request khác cần authentication
                         .anyRequest().authenticated())
+                // Sẽ kích hoạt khi client (frontend hoặc Postman) truy cập URL bắt đầu quy trình OAuth2
+                // VD: http://localhost:8080/oauth2/authorization/google
+                // Sau khi đăng nhập thành công, Google sẽ gọi lại redirect-uri, ví dụ:
+                // http://localhost:8080/api/auth/oauth2/callback/google?code=xxx&state=yyy
+                // Lúc này, Spring Security sẽ tự động:
+                // - Gọi token endpoint của Google.
+                // - Lấy access_token.
+                // - Lấy thông tin user từ Google (email, name,...).
+                // - Sau đó sẽ gọi successHandler mà bạn cấu hình
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureUrl("/login?error=true")
+                )
                 // authenticationProvider(provider()): Sử dụng DaoAuthenticationProvider
                 .authenticationProvider(authenticationProvider())
                 // Vì trong ứng dụng ta dùng JWT nên không dùng UsernamePasswordAuthenticationFilter để xác thực nữa.

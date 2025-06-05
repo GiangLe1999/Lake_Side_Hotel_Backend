@@ -1,5 +1,7 @@
 server:
   port: ${SERVER_PORT}
+  servlet:
+    context-path: /api
 
 logging:
   level:
@@ -11,9 +13,6 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
-  web:
-    servlet:
-      context-path: /api
   datasource:
     url: ${DB_URL}
     username: ${DB_USER_NAME}
@@ -37,13 +36,13 @@ spring:
       client:
         registration:
           google:
-            client-id: your-google-client-id
-            client-secret: your-google-client-secret
+            client-id: ${OAUTH_CLIENT_ID}
+            client-secret: ${OAUTH_CLIENT_SECRET}
             scope:
               - openid
               - profile
               - email
-            redirect-uri: "${BASE_URL}/api/auth/oauth2/callback/google"
+            redirect-uri: "{baseUrl}/api/auth/oauth2/callback/"
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
@@ -62,8 +61,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-
 
 aws:
   accessKeyId: ${AWS_ACCESS_KEY_ID}

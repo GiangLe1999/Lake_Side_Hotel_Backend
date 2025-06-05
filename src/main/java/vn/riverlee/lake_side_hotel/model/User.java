@@ -33,9 +33,6 @@ public class User extends AbstractEntity implements UserDetails {
     @Column(name = "google_id")
     private String googleId; // Cho Google OAuth
 
-    @Column(name = "is_enabled")
-    private boolean enabled = true;
-
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<Booking> bookings;
 
@@ -67,6 +64,6 @@ public class User extends AbstractEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return true;
     }
 }
