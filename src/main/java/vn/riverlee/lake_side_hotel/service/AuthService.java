@@ -7,6 +7,7 @@ import vn.riverlee.lake_side_hotel.dto.request.RefreshTokenRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RegisterRequest;
 import vn.riverlee.lake_side_hotel.dto.response.AuthResponse;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
+import vn.riverlee.lake_side_hotel.dto.response.UserInfoResponse;
 
 public interface AuthService {
     AuthResponse register(@Valid RegisterRequest request);
@@ -16,4 +17,6 @@ public interface AuthService {
     AuthResponse refresh(@Valid RefreshTokenRequest request);
 
     String logout(@Valid @RequestBody RefreshTokenRequest request);
+
+    UserInfoResponse getCurrentUserProfile();
 }

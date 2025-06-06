@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.LoginRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RefreshTokenRequest;
@@ -89,5 +90,26 @@ public class AuthServiceImpl implements AuthService {
     public String logout(RefreshTokenRequest request) {
         refreshTokenService.deleteByToken(request.getRefreshToken());
         return "Logged out successfully";
+    }
+
+    @Override
+    public UserInfoResponse getCurrentUserProfile() {
+        // SecurityContextHolder là nơi Spring Security lưu thông tin bảo mật hiện tại
+        // .getContext() trả về SecurityContext, nơi chứa thông tin xác thực (authentication)
+        // .getAuthentication() trả về đối tượng Authentication – đại diện cho người dùng hiện tại
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // authentication.getPrincipal() trả về đối tượng đại diện cho người dùng hiện tại
+        // Nếu bạn dùng UserDetailsService trong Spring Security,
+        // principal sẽ là một đối tượng thuộc lớp org.springframework.security.core.userdetails.User
+        // hoặc class User do bạn tự định nghĩa (implement UserDetails)
+        User user = (User) authentication.getPrincipal();
+
+        return UserInfoResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .build();
     }
 }

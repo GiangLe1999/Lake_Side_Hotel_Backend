@@ -23,6 +23,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Value("${app.refresh-token.expiration:604800}") // 7 days
     private Long refreshTokenDurationSeconds;
 
+    @Transactional
     @Override
     public RefreshToken createRefreshToken(User user) {
         // Xóa refresh token cũ của user này
