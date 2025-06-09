@@ -45,7 +45,4 @@ public class BookingRequest implements Serializable {
 
     @NotNull(message = "Room ID is required")
     private Long roomId;
-
-    // Note: If the user is authenticated, you can retrieve the user ID from the session or token rather than passing it here.
-    private long userId;
 }

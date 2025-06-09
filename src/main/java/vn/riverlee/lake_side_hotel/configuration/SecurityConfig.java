@@ -98,24 +98,25 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/bookings/public/**").permitAll()
                         .requestMatchers("/rooms/public/**").permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
 
                         // Các endpoint dành cho USER và ADMIN
+                        .requestMatchers("/api/reviews/user/**").hasRole("USER")
 
                         // Các endpoint chỉ dành cho ADMIN
 
                         // Tất cả request khác cần authentication
                         .anyRequest().authenticated())
                 // Sẽ kích hoạt khi client (frontend hoặc Postman) truy cập URL bắt đầu quy trình OAuth2
-                // VD: http://localhost:8080/oauth2/authorization/google
+                // VD: http://localhost:8080/api/oauth2/authorization/google
                 // Sau khi đăng nhập thành công, Google sẽ gọi lại redirect-uri, ví dụ:
-                // http://localhost:8080/api/auth/oauth2/callback/google?code=xxx&state=yyy
+                // http://localhost:8080/api/auth/oauth2/callback/flowName=GeneralOAuthFlow
                 // Lúc này, Spring Security sẽ tự động:
                 // - Gọi token endpoint của Google.
                 // - Lấy access_token.
                 // - Lấy thông tin user từ Google (email, name,...).
                 // - Sau đó sẽ gọi successHandler mà bạn cấu hình
                 .oauth2Login(oauth2 -> oauth2
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/auth/oauth2/callback/flowName=GeneralOAuthFlow"))
                         .successHandler(oAuth2SuccessHandler)
                         .failureUrl("/login?error=true")
                 )

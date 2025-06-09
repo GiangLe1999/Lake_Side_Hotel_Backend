@@ -34,21 +34,22 @@ spring:
   security:
     oauth2:
       client:
-        registration:
+        registration:        # <-- Khai báo thông tin "đăng ký client" với Google
           google:
-            client-id: ${OAUTH_CLIENT_ID}
-            client-secret: ${OAUTH_CLIENT_SECRET}
-            scope:
+            client-id: ${OAUTH_CLIENT_ID}           # <-- Mã định danh của client (lấy từ Google Cloud Console)
+            client-secret: ${OAUTH_CLIENT_SECRET}   # <-- Mã bí mật (secret key) của client
+            scope:                                  # <-- Quyền truy cập yêu cầu
               - openid
               - profile
               - email
-            redirect-uri: "{baseUrl}/api/auth/oauth2/callback/"
-        provider:
+            # {baseUrl} - Spring Security sẽ tự động thay bằng URL gốc (origin) của ứng dụng
+            redirect-uri: "{baseUrl}/api/auth/oauth2/callback/flowName=GeneralOAuthFlow"   # URI mà Google sẽ chuyển hướng tới sau khi người dùng đăng nhập thành công
+        provider:           # <-- Thông tin của nhà cung cấp OAuth (Google)
           google:
-            authorization-uri: https://accounts.google.com/o/oauth2/auth
-            token-uri: https://www.googleapis.com/oauth2/v4/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
+            authorization-uri: https://accounts.google.com/o/oauth2/auth  # <-- URL người dùng sẽ được chuyển tới để đăng nhập
+            token-uri: https://www.googleapis.com/oauth2/v4/token         # <-- URL để đổi code lấy access token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo # <-- URL lấy thông tin người dùng
+            user-name-attribute: sub  # <-- Thuộc tính duy nhất trong user info để định danh người dùng (sub = subject ID)
   mail:
     from: ${SMTP_FROM}
     host: ${SMTP_HOST}
@@ -82,5 +83,5 @@ app:
       expiration: 604800
   priceInfo:
     service-fee: 29
-    taxes: 0.1
+    tax-rate: 0.1
 

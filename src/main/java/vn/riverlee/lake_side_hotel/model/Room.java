@@ -22,7 +22,7 @@ public class Room extends AbstractEntity {
     @Column(name = "summary")
     private String summary;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "area")
@@ -36,6 +36,12 @@ public class Room extends AbstractEntity {
     )
     @Column(name = "amenities")
     private List<String> amenities = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "tbl_room_features", joinColumns = @JoinColumn(name = "room_id")
+    )
+    @Column(name = "features")
+    private List<String> features = new ArrayList<>();
 
     @Column(name = "avg_rating")
     private BigDecimal avgRating = new BigDecimal("0.0");
@@ -70,4 +76,7 @@ public class Room extends AbstractEntity {
     // cascade = CascadeType.ALL - khi room bị xóa, toàn bộ lịch sử đặt phòng (bookings) cũng bị xóa theo
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "room")
     private List<Booking> bookings = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "room")
+    private List<Review> reviews = new ArrayList<>();
 }

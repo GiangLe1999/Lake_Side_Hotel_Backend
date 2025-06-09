@@ -19,6 +19,7 @@ public class RoomResponse {
     private BigDecimal area;
     private String beds;
     private List<String> amenities;
+    private List<String> features;
     private Integer totalRooms;
     private BigDecimal price;
     private boolean isBooked;

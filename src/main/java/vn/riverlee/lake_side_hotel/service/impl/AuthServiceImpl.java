@@ -1,9 +1,11 @@
 package vn.riverlee.lake_side_hotel.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.LoginRequest;
@@ -45,25 +47,30 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+    public AuthResponse login(LoginRequest request) throws BadRequestException {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        User user = (User) authentication.getPrincipal();
+            User user = (User) authentication.getPrincipal();
 
-        // Tạo tokens
-        String accessToken = jwtUtil.generateToken(user);
-        RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(user);
+            // Generate tokens
+            String accessToken = jwtUtil.generateToken(user);
+            RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(user);
 
-        UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole())
-                .build();
+            UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .role(user.getRole())
+                    .build();
 
-        return new AuthResponse(accessToken, refreshTokenEntity.getToken(), userInfoResponse);
+            return new AuthResponse(accessToken, refreshTokenEntity.getToken(), userInfoResponse);
+        } catch (AuthenticationException ex) {
+            // Return 400 Bad Request if login fails
+            throw new BadRequestException("Invalid email or password");
+        }
     }
 
     @Override

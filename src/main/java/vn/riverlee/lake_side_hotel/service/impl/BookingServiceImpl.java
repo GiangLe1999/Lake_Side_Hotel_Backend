@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.BookingRequest;
 import vn.riverlee.lake_side_hotel.enums.BookingStatus;
@@ -15,13 +17,19 @@ import vn.riverlee.lake_side_hotel.enums.PaymentType;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.model.Booking;
 import vn.riverlee.lake_side_hotel.model.Room;
+import vn.riverlee.lake_side_hotel.model.User;
 import vn.riverlee.lake_side_hotel.repository.BookingRepository;
 import vn.riverlee.lake_side_hotel.repository.RoomRepository;
+import vn.riverlee.lake_side_hotel.repository.UserRepository;
 import vn.riverlee.lake_side_hotel.service.BookingService;
 import vn.riverlee.lake_side_hotel.service.EmailService;
 import vn.riverlee.lake_side_hotel.util.CodeGenerator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -30,35 +38,63 @@ import java.util.List;
 public class BookingServiceImpl implements BookingService {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
     private final EmailService emailService;
 
-    @Value("${app.priceInfo.service-fee}")
-    private String serviceFee;
+    @Value("${app.priceInfo.service-fee:29}")
+    private int serviceFee;
 
-    @Value("${app.priceInfo.taxes}")
-    private String taxes;
+    @Value("${app.priceInfo.tax-rate:0.1}")
+    private double taxRate;
 
     @Override
     public Long addBooking(BookingRequest request) throws BadRequestException, MessagingException {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + request.getRoomId() + " not found"));
 
+        LocalDate checkInDate = request.getCheckInDate();
+        LocalDate checkOutDate = request.getCheckOutDate();
+        BigDecimal roomPrice = room.getPrice();
+        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        BigDecimal taxAmount = roomPrice
+                .multiply(BigDecimal.valueOf(taxRate))
+                .setScale(0, RoundingMode.HALF_UP); // tương tự Math.round
+        BigDecimal reCalculatedTotalPrice = roomPrice
+                .multiply(BigDecimal.valueOf(daysBetween))
+                .add(taxAmount)
+                .add(BigDecimal.valueOf(serviceFee));
+
+        if (reCalculatedTotalPrice.compareTo(request.getTotalPrice()) != 0) {
+            throw new BadRequestException("Total price mismatch. Please check your booking information.");
+        }
+
         List<Booking> conflictBookings = bookingRepository.findAllByCheckInDateGreaterThanEqualAndCheckOutDateLessThanEqualAndRoomAndBookingStatus(
-                request.getCheckInDate(),
-                request.getCheckOutDate(),
+                checkInDate,
+                checkOutDate,
                 room,
                 BookingStatus.CONFIRMED
-                );
+        );
 
-        if (room.getTotalRooms() < conflictBookings.size()) {
+        if (room.getTotalRooms() <= conflictBookings.size()) {
             throw new BadRequestException("Room not available");
         }
 
         String confirmationCode = CodeGenerator.generateConfirmationCode();
 
+        User user = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof User) {
+                user = (User) principal;
+            }
+        }
+
         Booking booking = Booking.builder()
-                .checkInDate(request.getCheckInDate())
-                .checkOutDate(request.getCheckOutDate())
+                .checkInDate(checkInDate)
+                .checkOutDate(checkOutDate)
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .tel(request.getTel())
@@ -67,8 +103,7 @@ public class BookingServiceImpl implements BookingService {
                 .totalPrice(request.getTotalPrice())
                 .confirmationCode(confirmationCode)
                 .room(room)
-                // Cần tìm user
-                .user(null)
+                .user(user) // user có thể là null nếu không đăng nhập
                 .build();
 
         emailService.sendBookingConfirmation(confirmationCode, room.getType(), request);

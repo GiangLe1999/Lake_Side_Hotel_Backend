@@ -3,6 +3,7 @@ package vn.riverlee.lake_side_hotel.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public DataResponse<?> login(@Valid @RequestBody LoginRequest request) {
+    public DataResponse<?> login(@Valid @RequestBody LoginRequest request) throws BadRequestException {
         log.info("Login account with email: {}", request.getEmail());
         AuthResponse authResponse = authService.login(request);
         return new DataResponse<>(HttpStatus.OK.value(), "Login successfully", authResponse);

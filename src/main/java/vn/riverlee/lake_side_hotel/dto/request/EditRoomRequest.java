@@ -29,6 +29,8 @@ public class EditRoomRequest implements Serializable {
 
     private List<@NotBlank(message = "Amenity must not be blank") String> amenities;
 
+    private List<@NotBlank(message = "Feature must not be blank") String> features;
+
     @Min(value = 1, message = "Total rooms must be at least 1")
     private Integer totalRooms;
 

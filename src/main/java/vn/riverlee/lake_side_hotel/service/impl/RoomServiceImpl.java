@@ -48,6 +48,7 @@ public class RoomServiceImpl implements RoomService {
                 .area(request.getArea())
                 .beds(request.getBeds())
                 .amenities(request.getAmenities())
+                .features(request.getFeatures())
                 .totalRooms(request.getTotalRooms())
                 .price(request.getPrice())
                 .thumbnailKey(thumbnailKey)
@@ -128,6 +129,7 @@ public class RoomServiceImpl implements RoomService {
                 .area(room.getArea())
                 .beds(room.getBeds())
                 .amenities(room.getAmenities())
+                .features(room.getFeatures())
                 .totalRooms(room.getTotalRooms())
                 .price(room.getPrice())
                 .thumbnailKey(room.getThumbnailKey())
@@ -147,6 +149,7 @@ public class RoomServiceImpl implements RoomService {
                 .area(room.getArea())
                 .beds(room.getBeds())
                 .amenities(room.getAmenities())
+                .features(room.getFeatures())
                 .totalRooms(room.getTotalRooms())
                 .price(room.getPrice())
                 .thumbnailKey(room.getThumbnailKey())
@@ -190,6 +193,11 @@ public class RoomServiceImpl implements RoomService {
             room.setAmenities(request.getAmenities());
         }
 
+        // Update features
+        if (request.getFeatures() != null && !request.getFeatures().isEmpty()) {
+            room.setFeatures(request.getFeatures());
+        }
+
         // Update total rooms
         if (request.getTotalRooms() != null) {
             room.setTotalRooms(request.getTotalRooms());
@@ -231,6 +239,7 @@ public class RoomServiceImpl implements RoomService {
                         .area(room.getArea())
                         .beds(room.getBeds())
                         .amenities(room.getAmenities())
+                        .features(room.getFeatures())
                         .thumbnailKey(room.getThumbnailKey())
                         .imageKeys(room.getImageKeys())
                         .price(room.getPrice())

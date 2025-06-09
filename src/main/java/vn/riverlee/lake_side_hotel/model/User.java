@@ -36,6 +36,9 @@ public class User extends AbstractEntity implements UserDetails {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<Booking> bookings;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Review> reviews;
+
     // UserDetails methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
