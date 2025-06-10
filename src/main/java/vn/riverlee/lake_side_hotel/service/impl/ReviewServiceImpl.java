@@ -2,26 +2,34 @@ package vn.riverlee.lake_side_hotel.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.ReviewRequest;
+import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.dto.response.ReviewResponse;
+import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
+import vn.riverlee.lake_side_hotel.dto.response.UserInfoResponse;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.model.Review;
 import vn.riverlee.lake_side_hotel.model.Room;
 import vn.riverlee.lake_side_hotel.model.User;
 import vn.riverlee.lake_side_hotel.repository.ReviewRepository;
 import vn.riverlee.lake_side_hotel.repository.RoomRepository;
-import vn.riverlee.lake_side_hotel.service.UserReviewService;
+import vn.riverlee.lake_side_hotel.service.ReviewService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserReviewServiceImpl implements UserReviewService {
+public class ReviewServiceImpl implements ReviewService {
     private final RoomRepository roomRepository;
     private final ReviewRepository reviewRepository;
 
@@ -58,5 +66,39 @@ public class UserReviewServiceImpl implements UserReviewService {
         roomRepository.save(room);
 
         return savedReview.getId();
+    }
+
+    @Override
+    public PaginationResponse<Object> getRoomReviews(int pageNo, int pageSize, long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+
+        Page<Review> page = reviewRepository.findByRoom(room, PageRequest.of(pageNo, pageSize, Sort.by("createdAt")));
+
+        List<ReviewResponse> reviewResponse = page.stream()
+                .map(review ->  {
+                    User user = review.getUser();
+                    UserInfoResponse userInfo = UserInfoResponse.builder()
+                            .fullName(user.getFullName())
+                            .email(user.getEmail())
+                            .build();
+
+                    return ReviewResponse.builder()
+                            .id(review.getId())
+                            .title(review.getTitle())
+                            .comment(review.getComment())
+                            .rating(review.getRating())
+                            .createdAt(review.getCreatedAt())
+                            .user(userInfo)
+                            .build();
+                })
+                .toList();
+
+        return PaginationResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(page.getTotalPages())
+                .items(reviewResponse)
+                .build();
     }
 }

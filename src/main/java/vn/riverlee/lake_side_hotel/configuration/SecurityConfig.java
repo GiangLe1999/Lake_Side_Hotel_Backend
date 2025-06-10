@@ -98,6 +98,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/bookings/public/**").permitAll()
                         .requestMatchers("/rooms/public/**").permitAll()
+                        .requestMatchers("/reviews/public/**").permitAll()
 
                         // Các endpoint dành cho USER và ADMIN
                         .requestMatchers("/api/reviews/user/**").hasRole("USER")

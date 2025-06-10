@@ -4,9 +4,11 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class ReviewRequest {
+public class ReviewRequest implements Serializable {
     @NotNull(message = "Room ID is required")
     private Long roomId;
 

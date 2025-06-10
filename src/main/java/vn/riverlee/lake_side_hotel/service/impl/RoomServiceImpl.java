@@ -132,6 +132,8 @@ public class RoomServiceImpl implements RoomService {
                 .features(room.getFeatures())
                 .totalRooms(room.getTotalRooms())
                 .price(room.getPrice())
+                .avgRating(room.getAvgRating())
+                .reviewCount(room.getReviewCount())
                 .thumbnailKey(room.getThumbnailKey())
                 .imageKeys(room.getImageKeys()).build();
     }

@@ -22,7 +22,8 @@ public class RoomResponse {
     private List<String> features;
     private Integer totalRooms;
     private BigDecimal price;
-    private boolean isBooked;
+    private BigDecimal avgRating;
+    private Integer reviewCount;
     private String thumbnailKey;
     private List<String> imageKeys;
     private List<BookingResponse> bookings;
