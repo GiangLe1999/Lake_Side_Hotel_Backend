@@ -13,6 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoomResponse {
     private Long id;
+    private String name;
     private String type;
     private String summary;
     private String description;
@@ -21,6 +22,7 @@ public class RoomResponse {
     private List<String> amenities;
     private List<String> features;
     private Integer totalRooms;
+    private Integer occupancy;
     private BigDecimal price;
     private BigDecimal avgRating;
     private Integer reviewCount;

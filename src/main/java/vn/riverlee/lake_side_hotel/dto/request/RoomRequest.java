@@ -12,6 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class RoomRequest implements Serializable {
+    @NotBlank(message = "Room name can not be empty")
+    @Size(max = 255, message = "Room name must not exceed 255 characters")
+    private String name;
 
     @NotBlank(message = "Room type can not be empty")
     @Size(max = 100, message = "Room type must not exceed 100 characters")
@@ -28,6 +31,10 @@ public class RoomRequest implements Serializable {
     @Min(value = 1, message = "Total rooms must be at least 1")
     // Nếu client không truyền, nó sẽ có giá trị mặc định là 1, qua được validation
     private Integer totalRooms;
+
+    @NotNull(message = "Occupancy is required")
+    @Min(value = 1, message = "Occupancy must be at least 1")
+    private Integer occupancy;
 
     @NotNull(message = "Area is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Area must be greater than 0")

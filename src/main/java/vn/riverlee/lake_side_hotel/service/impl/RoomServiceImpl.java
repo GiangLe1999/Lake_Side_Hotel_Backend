@@ -42,11 +42,13 @@ public class RoomServiceImpl implements RoomService {
 
         // Tạo và lưu Room
         Room room = Room.builder()
+                .name(request.getName())
                 .type(request.getType())
                 .summary(request.getSummary())
                 .description(request.getDescription())
                 .area(request.getArea())
                 .beds(request.getBeds())
+                .occupancy(request.getOccupancy())
                 .amenities(request.getAmenities())
                 .features(request.getFeatures())
                 .totalRooms(request.getTotalRooms())
@@ -77,7 +79,9 @@ public class RoomServiceImpl implements RoomService {
                 .map(room -> RoomResponse.builder()
                         .id(room.getId())
                         .type(room.getType())
+                        .name(room.getName())
                         .price(room.getPrice())
+                        .occupancy(room.getOccupancy())
                         .totalRooms(room.getTotalRooms())
                         .createdAt(room.getCreatedAt())
                         .build())
@@ -123,11 +127,13 @@ public class RoomServiceImpl implements RoomService {
 
         return RoomResponse.builder()
                 .id(room.getId())
+                .name(room.getName())
                 .type(room.getType())
                 .summary(room.getSummary())
                 .description(room.getDescription())
                 .area(room.getArea())
                 .beds(room.getBeds())
+                .occupancy(room.getOccupancy())
                 .amenities(room.getAmenities())
                 .features(room.getFeatures())
                 .totalRooms(room.getTotalRooms())
@@ -145,11 +151,13 @@ public class RoomServiceImpl implements RoomService {
 
         return RoomResponse.builder()
                 .id(room.getId())
+                .name(room.getName())
                 .type(room.getType())
                 .summary(room.getSummary())
                 .description(room.getDescription())
                 .area(room.getArea())
                 .beds(room.getBeds())
+                .occupancy(room.getOccupancy())
                 .amenities(room.getAmenities())
                 .features(room.getFeatures())
                 .totalRooms(room.getTotalRooms())
@@ -164,6 +172,11 @@ public class RoomServiceImpl implements RoomService {
     public Long editRoom(long id, EditRoomRequest request) throws IOException {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + id + " not found"));
+
+        // Update name
+        if (request.getName() != null) {
+            room.setName(request.getName());
+        }
 
         // Update type
         if (request.getType() != null) {
@@ -188,6 +201,11 @@ public class RoomServiceImpl implements RoomService {
         // Update beds
         if (request.getBeds() != null) {
             room.setBeds(request.getBeds());
+        }
+
+        // Update occupancy
+        if (request.getOccupancy() != null) {
+            room.setOccupancy(request.getOccupancy());
         }
 
         // Update amenities
@@ -229,12 +247,13 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public PaginationResponse<Object> getRooms(int pageNo, int pageSize) {
-        Page<Room> page = roomRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by("avgRating")));
+    public List<RoomResponse> getRoomsForHomepage() {
+       List<Room> rooms = roomRepository.findTop3ByOrderByReviewCountDesc();
 
-        List<RoomResponse> roomResponse = page.stream()
+        List<RoomResponse> roomResponse = rooms.stream()
                 .map(room -> RoomResponse.builder()
                         .id(room.getId())
+                        .name(room.getName())
                         .type(room.getType())
                         .summary(room.getSummary())
                         .description(room.getDescription())
@@ -249,11 +268,6 @@ public class RoomServiceImpl implements RoomService {
                         .build())
                 .toList();
 
-        return PaginationResponse.builder()
-                .pageNo(pageNo)
-                .pageSize(pageSize)
-                .totalPages(page.getTotalPages())
-                .items(roomResponse)
-                .build();
+        return roomResponse;
     }
 }

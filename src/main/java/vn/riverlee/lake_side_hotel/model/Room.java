@@ -15,6 +15,8 @@ import java.util.List;
 @Entity(name = "Room")
 @Table(name = "tbl_room")
 public class Room extends AbstractEntity {
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "type")
     private String type;
@@ -30,6 +32,9 @@ public class Room extends AbstractEntity {
 
     @Column(name = "beds")
     private String beds;
+
+    @Column(name = "occupancy")
+    private Integer occupancy = 1;
 
     @ElementCollection
     @CollectionTable(name = "tbl_room_amenities", joinColumns = @JoinColumn(name = "room_id")

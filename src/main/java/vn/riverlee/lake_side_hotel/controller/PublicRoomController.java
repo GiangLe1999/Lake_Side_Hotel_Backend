@@ -45,12 +45,11 @@ public class PublicRoomController {
     }
 
     // Get rooms with full details and pagination (used at homepage)
-    @GetMapping("")
-    public DataResponse<PaginationResponse> getRooms(@RequestParam(defaultValue = "0", required = false) int pageNo,
-                                         @Min(3) @RequestParam(defaultValue = "9", required = false) int pageSize) {
+    @GetMapping("/for-homepage")
+    public DataResponse<List<RoomResponse>> getRoomsForHomepage() {
         log.info("Get rooms with full details and pagination");
-        PaginationResponse roomPaginationResponse = roomService.getRooms(pageNo, pageSize);
-        return new DataResponse<>(HttpStatus.OK.value(), "Get rooms filtered by room type successfully", roomPaginationResponse);
+        List<RoomResponse> roomResponseList = roomService.getRoomsForHomepage();
+        return new DataResponse<>(HttpStatus.OK.value(), "Get rooms filtered by room type successfully", roomResponseList);
     }
 
     // Get room information with full details

@@ -6,7 +6,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,14 +25,8 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalException {
-    /**
-     * Handle exception when validate data
-     *
-     * @param e
-     * @param request
-     * @return errorResponse
-     */
     @ExceptionHandler({ConstraintViolationException.class,
             MissingServletRequestParameterException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(BAD_REQUEST)
@@ -77,14 +74,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-
-    /**
-     * Handle exception when the request not found data
-     *
-     * @param e
-     * @param request
-     * @return
-     */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     @ApiResponses(value = {
@@ -115,13 +104,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-    /**
-     * Handle exception when the data is conflicted
-     *
-     * @param e
-     * @param request
-     * @return
-     */
     @ExceptionHandler(InvalidDataException.class)
     @ResponseStatus(CONFLICT)
     @ApiResponses(value = {
@@ -152,9 +134,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-    /**
-     * Handle AWS S3 exceptions
-     */
     @ExceptionHandler(AmazonS3Exception.class)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Bad Request for S3",
@@ -236,9 +215,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-    /**
-     * Handle IOException (e.g., from MultipartFile processing)
-     */
     @ExceptionHandler(IOException.class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ApiResponses(value = {
@@ -268,13 +244,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-    /**
-     * Handle exception when request is invalid (400 Bad Request)
-     *
-     * @param e       the BadRequestException
-     * @param request the web request
-     * @return error response
-     */
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(BAD_REQUEST)
     @ApiResponses(value = {
@@ -305,13 +274,6 @@ public class GlobalException {
         return errorResponse;
     }
 
-    /**
-     * Handle exception when internal server error
-     *
-     * @param e
-     * @param request
-     * @return error
-     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ApiResponses(value = {
@@ -331,6 +293,14 @@ public class GlobalException {
                                             """
                             ))})
     })
+
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public String handleWebSocketException(Exception exception) {
+        log.error("WebSocket error: {}", exception.getMessage(), exception);
+        return "Error: " + exception.getMessage();
+    }
+
     public ErrorResponse handleException(Exception e, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(new Date());

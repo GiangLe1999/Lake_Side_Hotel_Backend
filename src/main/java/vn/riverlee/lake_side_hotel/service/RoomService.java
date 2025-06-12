@@ -26,5 +26,7 @@ public interface RoomService {
 
     Long editRoom(@Min(1) long id, @Valid EditRoomRequest request) throws IOException;
 
-    PaginationResponse<Object> getRooms(int pageNo, int pageSize);
+//    PaginationResponse<Object> getRooms(int pageNo, int pageSize);
+
+    List<RoomResponse> getRoomsForHomepage();
 }

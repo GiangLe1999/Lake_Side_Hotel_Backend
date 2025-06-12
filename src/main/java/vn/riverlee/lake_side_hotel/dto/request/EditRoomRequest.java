@@ -12,12 +12,16 @@ import java.util.List;
 @Getter
 @Setter
 public class EditRoomRequest implements Serializable {
+    @Size(max = 255, message = "Name must not exceed 255 characters")
+    private String name;
 
+    @Size(max = 255, message = "Type must not exceed 255 characters")
     private String type;
 
     @Size(max = 255, message = "Summary must not exceed 255 characters")
     private String summary;
 
+    @Size(max = 2500, message = "Description must not exceed 255 characters")
     private String description;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Area must be greater than 0")
@@ -26,6 +30,9 @@ public class EditRoomRequest implements Serializable {
 
     @Size(max = 100, message = "Beds field must not exceed 100 characters")
     private String beds;
+
+    @Min(value = 1, message = "Occupancy must be at least 1")
+    private Integer occupancy;
 
     private List<@NotBlank(message = "Amenity must not be blank") String> amenities;
 

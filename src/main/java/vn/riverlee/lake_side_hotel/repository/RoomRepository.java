@@ -26,4 +26,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     long countByType(String type);
 
     void deleteById(Long id);
+
+    List<Room> findTop3ByOrderByReviewCountDesc();
 }

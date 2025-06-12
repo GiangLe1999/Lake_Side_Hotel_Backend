@@ -73,7 +73,7 @@ public class ReviewServiceImpl implements ReviewService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
 
-        Page<Review> page = reviewRepository.findByRoom(room, PageRequest.of(pageNo, pageSize, Sort.by("createdAt")));
+        Page<Review> page = reviewRepository.findByRoom(room, PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC,"createdAt")));
 
         List<ReviewResponse> reviewResponse = page.stream()
                 .map(review ->  {
