@@ -26,6 +26,8 @@ public class ChatConversation extends AbstractEntity {
     @Column(name = "guest_email")
     private String guestEmail; // Email của guest (optional)
 
+    // Không nên dùng conversationId vì nó là primary key DB nội bộ, frontend không nên biết → tránh lộ thông tin DB
+    // Thay vào đó là sử dụng sessionId
     @Column(name = "session_id", unique = true)
     private String sessionId; // Unique session ID
 

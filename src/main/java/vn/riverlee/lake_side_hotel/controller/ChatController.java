@@ -2,6 +2,7 @@ package vn.riverlee.lake_side_hotel.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -11,13 +12,14 @@ import vn.riverlee.lake_side_hotel.dto.request.InitChatRequest;
 import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatConversationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
+import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
 import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/chat")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ChatController {
@@ -25,11 +27,11 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/init")
-    public ResponseEntity<ChatConversationResponse> initializeChat(
+    public DataResponse<ChatConversationResponse> initializeChat(
             @Valid @RequestBody InitChatRequest request,
             Authentication authentication) {
         ChatConversationResponse conversation = chatService.initializeChat(request, authentication);
-        return ResponseEntity.ok(conversation);
+        return new DataResponse<>(HttpStatus.CREATED.value(), "Initialize chat successfully", conversation);
     }
 
     @GetMapping("/{sessionId}")
@@ -69,8 +71,10 @@ public class ChatController {
         return ResponseEntity.ok(conversations);
     }
 
-    // WebSocket message handling
+    // @GetMapping, @PostMapping chỉ dành cho HTTP route. Không thể dùng trong WebSocket/STOMP
+    // Chỉ @MessageMapping mới có thể giúp lắng nghe các message STOMP gửi đến đích /app/chat/send
     @MessageMapping("/chat/send")
+    // Sau khi xử lý xong, gửi message (broadcast) đến các client đang subscribe /topic/chat
     @SendTo("/topic/chat")
     public ChatMessageResponse sendMessage(
             @Valid SendMessageRequest request,

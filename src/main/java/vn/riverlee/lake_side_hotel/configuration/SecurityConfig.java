@@ -99,6 +99,7 @@ public class SecurityConfig {
                         .requestMatchers("/bookings/public/**").permitAll()
                         .requestMatchers("/rooms/public/**").permitAll()
                         .requestMatchers("/reviews/public/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
 
                         // Các endpoint dành cho USER và ADMIN
                         .requestMatchers("/api/reviews/user/**").hasRole("USER")

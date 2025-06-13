@@ -21,10 +21,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // queue: dùng cho message riêng biệt (point-to-point message, ví dụ: chat riêng).
         config.enableSimpleBroker("/topic", "/queue");
         // Khi client gửi message đến server, prefix này phải có. Ví dụ:
-        // stompClient.send("/chat-app/chat", {}, JSON.stringify(message));
+        // stompClient.send("/app/chat", {}, JSON.stringify(message));
         // Server sẽ route những tin nhắn bắt đầu bằng /app đến controller handler
         // (các method dùng annotation như @MessageMapping("/chat")).
-        config.setApplicationDestinationPrefixes("/chat-app");
+        config.setApplicationDestinationPrefixes("/app");
         // Định nghĩa prefix cho các user-specific destinations.
         // Tin nhắn gửi riêng cho user nào đó sẽ dùng prefix /user để phân biệt (ví dụ: /user/{userId}/queue/messages).
         config.setUserDestinationPrefix("/user");
@@ -38,13 +38,26 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*")
                 // Cho phép sử dụng SockJS nếu trình duyệt không hỗ trợ WebSocket gốc (fallback mechanism)
                 .withSockJS();
+
+        // Lưu ý là: Backend đang dùng SockJS (không phải WebSocket thuần)
+        // SockJS là thư viện giúp fallback: nếu trình duyệt hoặc network không hỗ trợ WebSocket
+        // nó tự động dùng các cơ chế khác như XHR-streaming, long-polling v.v.
+        // Vì backend dùng .withSockJS(), frontend cũng phải dùng bằng cách npm install sockjs-client
+        // Và cấu hình client như sau:
+        /* const client = new Client({
+              webSocketFactory: () => new SockJS("http:localhost:8080/ws"), // chứ không phải ws://localhost:8080/ws như khi dùng WebSocket thuần
+              reconnectDelay: 5000,
+              heartbeatIncoming: 4000,
+              heartbeatOutgoing: 4000,
+           });
+        */
     }
 }
 
 /*
 Tóm tắt luồng hoạt động:
 Bước	Vai trò	                               Đường dẫn (Prefix)	           Mô tả
-1	    Client gửi tới Server	               /chat-app/**	                   Server handle bằng @MessageMapping
+1	    Client gửi tới Server	               /app/**	                       Server handle bằng @MessageMapping
 2	    Server gửi tới client (broadcast)	   /topic/**	                   Gửi chung cho nhiều client
 3	    Server gửi riêng 1 client	           /user/**	                       Gửi cho từng user (riêng biệt)
 4	    Kết nối WebSocket	                   /ws	                           Điểm vào WebSocket từ phía client
