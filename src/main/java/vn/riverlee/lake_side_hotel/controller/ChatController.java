@@ -74,11 +74,13 @@ public class ChatController {
     // @GetMapping, @PostMapping chỉ dành cho HTTP route. Không thể dùng trong WebSocket/STOMP
     // Chỉ @MessageMapping mới có thể giúp lắng nghe các message STOMP gửi đến đích /app/chat/send
     @MessageMapping("/chat/send")
-    // Sau khi xử lý xong, gửi message (broadcast) đến các client đang subscribe /topic/chat
+    // Topic/chat là channel đặc biệt được subscribe bởi admin
+    // Khi user gửi message, server publish vào đổng thời cả /topic/chat/{sessionId} và topic/chat để admin nhận được
     @SendTo("/topic/chat")
     public ChatMessageResponse sendMessage(
             @Valid SendMessageRequest request,
             Authentication authentication) {
+        System.out.println(request.getContent());
         return chatService.sendMessage(request, authentication);
     }
 }

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
+import vn.riverlee.lake_side_hotel.dto.request.TypingIndicatorRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
@@ -15,6 +17,7 @@ import vn.riverlee.lake_side_hotel.service.ChatService;
 public class WebSocketChatController {
 
     private final ChatService chatService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @MessageMapping("/chat/{sessionId}/send")
     @SendTo("/topic/chat/{sessionId}")
@@ -28,10 +31,11 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/chat/{sessionId}/typing")
+    // Nếu có @SendTo, Spring sẽ tự động lấy giá trị return để cho gửi toàn bộ client đang subscribe topic /topic/chat/{sessionId}/typing.
     @SendTo("/topic/chat/{sessionId}/typing")
     public String handleTyping(
             @DestinationVariable String sessionId,
-            String senderName) {
-        return senderName + " đang nhập...";
+            TypingIndicatorRequest typingRequest) {
+        return typingRequest.isTyping() ? typingRequest.getSenderName() + " is typing..." : "";
     }
 }

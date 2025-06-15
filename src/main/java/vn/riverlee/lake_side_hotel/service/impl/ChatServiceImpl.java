@@ -66,9 +66,6 @@ public class ChatServiceImpl implements ChatService {
 
         conversation = conversationRepository.save(conversation);
 
-        // Gửi tin nhắn chào mừng
-        sendWelcomeMessage(conversation);
-
         return chatMapper.toDTO(conversation);
     }
 
@@ -183,19 +180,6 @@ public class ChatServiceImpl implements ChatService {
                         .messageType(MessageType.SYSTEM_MESSAGE)
                         .build()
         );
-    }
-
-    private void sendWelcomeMessage(ChatConversation conversation) {
-        ChatMessage welcomeMessage = ChatMessage.builder()
-                .conversation(conversation)
-                .content("Hello! How can we assist you today?")
-                .senderType(SenderType.SYSTEM)
-                .messageType(MessageType.SYSTEM_MESSAGE)
-                .senderName("System")
-                .isRead(false)
-                .build();
-
-        messageRepository.save(welcomeMessage);
     }
 
     private String generateSessionId() {
