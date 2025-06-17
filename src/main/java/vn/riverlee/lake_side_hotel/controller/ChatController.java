@@ -13,6 +13,7 @@ import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatConversationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
+import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
 import jakarta.validation.Valid;
@@ -64,11 +65,15 @@ public class ChatController {
 
     // Admin endpoints
     @GetMapping("/admin/conversations")
-    public ResponseEntity<Page<ChatConversationResponse>> getActiveConversations(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<ChatConversationResponse> conversations = chatService.getActiveConversations(page, size);
-        return ResponseEntity.ok(conversations);
+    public DataResponse<PaginationResponse<?>> getConversations(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String status
+            ) {
+        PaginationResponse<?> conversationPaginationResponse = chatService.getConversations(pageNo, pageSize, search, sortBy, status);
+        return new DataResponse<PaginationResponse<?>>(HttpStatus.OK.value(), "Get conversations successfully", conversationPaginationResponse);
     }
 
     // @GetMapping, @PostMapping chỉ dành cho HTTP route. Không thể dùng trong WebSocket/STOMP

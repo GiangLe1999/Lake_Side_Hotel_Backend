@@ -6,6 +6,7 @@ import vn.riverlee.lake_side_hotel.dto.request.InitChatRequest;
 import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatConversationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
+import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 
 import java.util.List;
 
@@ -18,9 +19,9 @@ public interface ChatService {
 
     List<ChatMessageResponse> getMessages(String sessionId, int page, int size);
 
-    Page<ChatConversationResponse> getActiveConversations(int page, int size);
-
     void markMessagesAsRead(String sessionId);
 
     void closeConversation(String sessionId);
+
+    PaginationResponse<?> getConversations(int pageNo, int pageSize, String search, String sortBy, String status);
 }

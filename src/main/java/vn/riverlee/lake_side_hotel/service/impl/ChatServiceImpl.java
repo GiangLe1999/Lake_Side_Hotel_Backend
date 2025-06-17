@@ -4,6 +4,8 @@ import vn.riverlee.lake_side_hotel.dto.request.InitChatRequest;
 import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatConversationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
+import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.repository.SearchRepository;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatConversationRepository conversationRepository;
     private final ChatMessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final SearchRepository searchRepository;
     private final ChatMapper chatMapper;
     private final SimpMessageSendingOperations messagingTemplate;
 
@@ -58,6 +61,7 @@ public class ChatServiceImpl implements ChatService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             conversation.setUser(user);
+
         } else {
             // Nếu Guest => lấy name, email từ request
             conversation.setGuestName(request.getGuestName());
@@ -147,12 +151,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ChatConversationResponse> getActiveConversations(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ChatConversation> conversations = conversationRepository
-                .findActiveConversations(ChatStatus.ACTIVE, pageable);
-
-        return conversations.map(chatMapper::toDTO);
+    public PaginationResponse<?> getConversations(int pageNo, int pageSize, String search, String sortBy, String status) {
+        return searchRepository.getConversations(pageNo, pageSize, search, sortBy, status);
     }
 
     public void markMessagesAsRead(String sessionId) {
@@ -168,7 +168,7 @@ public class ChatServiceImpl implements ChatService {
         ChatConversation conversation = conversationRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat conversation not found"));
 
-        conversation.setStatus(ChatStatus.CLOSED);
+        conversation.setStatus(ChatStatus.RESOLVED);
         conversationRepository.save(conversation);
 
         // Notify clients that conversation is closed

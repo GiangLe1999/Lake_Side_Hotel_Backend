@@ -18,6 +18,7 @@ public class ChatConversationResponse {
     private String guestName;
     private String guestEmail;
     private String userName; // Tên user nếu đã đăng nhập
+    private String userEmail; // Email user nếu đã đăng nhập
     private ChatStatus status;
     private Long roomId;
     private LocalDateTime lastMessageAt;

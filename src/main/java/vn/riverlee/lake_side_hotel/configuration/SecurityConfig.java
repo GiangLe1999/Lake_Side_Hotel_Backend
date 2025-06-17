@@ -102,10 +102,11 @@ public class SecurityConfig {
                         .requestMatchers("/chat/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
 
-                        // Các endpoint dành cho USER và ADMIN
-                        .requestMatchers("/api/reviews/user/**").hasRole("USER")
+                        // Các endpoint dành cho USER
+                        .requestMatchers("/reviews/user/**").hasRole("USER")
 
                         // Các endpoint chỉ dành cho ADMIN
+                        .requestMatchers("/chat/admin/**").hasRole("ADMIN")
 
                         // Tất cả request khác cần authentication
                         .anyRequest().authenticated())

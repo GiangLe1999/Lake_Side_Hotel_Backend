@@ -40,8 +40,8 @@ public class AdminChatServiceImpl implements AdminChatService {
     @Transactional(readOnly = true)
     public ChatStatsResponse getChatStats() {
         long activeConversations = conversationRepository.countByStatus(ChatStatus.ACTIVE);
-        long closedConversations = conversationRepository.countByStatus(ChatStatus.CLOSED);
-        long waitingConversations = conversationRepository.countByStatus(ChatStatus.WAITING_ADMIN);
+        long closedConversations = conversationRepository.countByStatus(ChatStatus.ACTIVE);
+        long waitingConversations = conversationRepository.countByStatus(ChatStatus.RESOLVED);
 
         return ChatStatsResponse.builder()
                 .activeConversations(activeConversations)

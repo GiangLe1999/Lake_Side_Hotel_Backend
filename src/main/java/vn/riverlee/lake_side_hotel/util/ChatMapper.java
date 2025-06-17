@@ -35,8 +35,10 @@ public class ChatMapper {
         }
 
         String userName = null;
+        String userEmail = null;
         if (conversation.getUser() != null) {
             userName = conversation.getUser().getFullName();
+            userEmail = conversation.getUser().getEmail();
         }
 
         return ChatConversationResponse.builder()
@@ -45,6 +47,7 @@ public class ChatMapper {
                 .guestName(conversation.getGuestName())
                 .guestEmail(conversation.getGuestEmail())
                 .userName(userName)
+                .userEmail(userEmail)
                 .status(conversation.getStatus())
                 .roomId(conversation.getRoomId())
                 .lastMessageAt(conversation.getLastMessageAt())
