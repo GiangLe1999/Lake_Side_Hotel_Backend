@@ -27,20 +27,23 @@ public class SearchRepository {
         StringBuilder sqlQuery = new StringBuilder(
                 "select distinct c from ChatConversation c " +
                         "left join c.messages m " +
+                        "left join c.user u " +   // Join thêm bảng User
                         "where 1=1"
         );
 
         if (StringUtils.hasLength(search)) {
             sqlQuery.append(" and (lower(c.guestName) like :search " +
                     "or lower(c.guestEmail) like :search " +
-                    "or lower(m.content) like :search)");
+                    "or lower(m.content) like :search " +
+                    "or lower(u.fullName) like :search " +    // Search theo user fullName
+                    "or lower(u.email) like :search)");       // Search theo user email
         }
 
         if (status != null && !status.equals("ALL")) {
             sqlQuery.append(" and c.status = :status");
         }
 
-        // Validate sortBy direction to prevent SQL injection
+        // Validate sortBy để tránh SQL Injection
         String sortDirection = "desc"; // default
         if ("asc".equalsIgnoreCase(sortBy)) {
             sortDirection = "asc";
@@ -64,20 +67,23 @@ public class SearchRepository {
 
         List<ChatConversation> resultList = selectQuery.getResultList();
         List<ChatConversationResponse> conversations = resultList.stream()
-                .map(chatMapper::toDTO)
+                .map(chatMapper::toDTOWithoutMessages)
                 .toList();
 
-        // Count Query (no order by needed for count)
+        // Count Query (không cần order by)
         StringBuilder sqlCountQuery = new StringBuilder(
                 "select count(distinct c) from ChatConversation c " +
                         "left join c.messages m " +
+                        "left join c.user u " +   // Join thêm bảng User
                         "where 1=1"
         );
 
         if (StringUtils.hasLength(search)) {
             sqlCountQuery.append(" and (lower(c.guestName) like :search " +
                     "or lower(c.guestEmail) like :search " +
-                    "or lower(m.content) like :search)");
+                    "or lower(m.content) like :search " +
+                    "or lower(u.fullName) like :search " +
+                    "or lower(u.email) like :search)");
         }
 
         if (status != null && !status.equals("ALL")) {

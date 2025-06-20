@@ -89,6 +89,7 @@ public class ChatServiceImpl implements ChatService {
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             senderName = user.getFullName();
 
+
             // Kiểm tra xem đây có phải admin không
             if (user.getRole().name().equals("ADMIN")) {
                 senderType = SenderType.ADMIN;
@@ -135,19 +136,26 @@ public class ChatServiceImpl implements ChatService {
         return chatMapper.toDTO(conversation);
     }
 
-
     @Transactional(readOnly = true)
-    public List<ChatMessageResponse> getMessages(String sessionId, int page, int size) {
+    public PaginationResponse<Object> getMessages(String sessionId, int pageNo, int pageSize) {
         ChatConversation conversation = conversationRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat conversation not found"));
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<ChatMessage> messages = messageRepository.findByConversationOrderByCreatedAtDesc(
                 conversation, pageable);
 
-        return messages.getContent().stream()
+        List<ChatMessageResponse> messagesResponse = messages.getContent().stream()
                 .map(chatMapper::toDTO)
                 .toList();
+
+        return PaginationResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .items(messagesResponse)
+                .totalPages(messages.getTotalPages())
+                .hasNextPage(messages.hasNext())
+                .build();
     }
 
     @Transactional(readOnly = true)

@@ -54,4 +54,25 @@ public class ChatMapper {
                 .messages(messages)
                 .build();
     }
+
+    public ChatConversationResponse toDTOWithoutMessages(ChatConversation conversation) {
+        String userName = null;
+        String userEmail = null;
+        if (conversation.getUser() != null) {
+            userName = conversation.getUser().getFullName();
+            userEmail = conversation.getUser().getEmail();
+        }
+
+        return ChatConversationResponse.builder()
+                .id(conversation.getId())
+                .sessionId(conversation.getSessionId())
+                .guestName(conversation.getGuestName())
+                .guestEmail(conversation.getGuestEmail())
+                .userName(userName)
+                .userEmail(userEmail)
+                .status(conversation.getStatus())
+                .roomId(conversation.getRoomId())
+                .lastMessageAt(conversation.getLastMessageAt())
+                .build();
+    }
 }

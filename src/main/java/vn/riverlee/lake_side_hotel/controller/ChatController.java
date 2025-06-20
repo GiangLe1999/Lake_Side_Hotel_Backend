@@ -1,7 +1,6 @@
 package vn.riverlee.lake_side_hotel.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -43,12 +42,12 @@ public class ChatController {
     }
 
     @GetMapping("/{sessionId}/messages")
-    public ResponseEntity<List<ChatMessageResponse>> getMessages(
+    public DataResponse<PaginationResponse<Object>> getMessages(
             @PathVariable String sessionId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-        List<ChatMessageResponse> messages = chatService.getMessages(sessionId, page, size);
-        return ResponseEntity.ok(messages);
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        PaginationResponse<Object> messages = chatService.getMessages(sessionId, pageNo, pageSize);
+        return new DataResponse<>(HttpStatus.OK.value(), "Get messages of conversation successfully", messages);
     }
 
     @PostMapping("/{sessionId}/read")
@@ -85,7 +84,6 @@ public class ChatController {
     public ChatMessageResponse sendMessage(
             @Valid SendMessageRequest request,
             Authentication authentication) {
-        System.out.println(request.getContent());
         return chatService.sendMessage(request, authentication);
     }
 }

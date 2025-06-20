@@ -1,5 +1,6 @@
 package vn.riverlee.lake_side_hotel.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
 import vn.riverlee.lake_side_hotel.enums.ChatStatus;
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChatConversationResponse {
     private Long id;
     private String sessionId;

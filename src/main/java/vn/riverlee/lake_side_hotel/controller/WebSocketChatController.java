@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.request.TypingIndicatorRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
+import vn.riverlee.lake_side_hotel.dto.response.TypingIndicatorResponse;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
 @Controller
@@ -33,9 +34,12 @@ public class WebSocketChatController {
     @MessageMapping("/chat/{sessionId}/typing")
     // Nếu có @SendTo, Spring sẽ tự động lấy giá trị return để cho gửi toàn bộ client đang subscribe topic /topic/chat/{sessionId}/typing.
     @SendTo("/topic/chat/{sessionId}/typing")
-    public String handleTyping(
+    public TypingIndicatorResponse handleTyping(
             @DestinationVariable String sessionId,
             TypingIndicatorRequest typingRequest) {
-        return typingRequest.isTyping() ? typingRequest.getSenderName() + " is typing..." : "";
+        TypingIndicatorResponse response  = new TypingIndicatorResponse();
+        response.setTyping(typingRequest.isTyping());
+        response.setSenderName(typingRequest.getSenderName());
+        return response;
     }
 }
