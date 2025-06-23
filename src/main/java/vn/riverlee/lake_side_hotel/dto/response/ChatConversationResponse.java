@@ -24,6 +24,8 @@ public class ChatConversationResponse {
     private ChatStatus status;
     private Long roomId;
     private LocalDateTime lastMessageAt;
+    private String lastMessage;
     private List<ChatMessageResponse> messages;
+    private Boolean isReadByAdmin;
     private int unreadCount;
 }

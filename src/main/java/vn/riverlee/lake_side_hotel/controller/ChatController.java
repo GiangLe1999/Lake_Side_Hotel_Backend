@@ -50,16 +50,22 @@ public class ChatController {
         return new DataResponse<>(HttpStatus.OK.value(), "Get messages of conversation successfully", messages);
     }
 
-    @PostMapping("/{sessionId}/read")
-    public ResponseEntity<Void> markMessagesAsRead(@PathVariable String sessionId) {
-        chatService.markMessagesAsRead(sessionId);
-        return ResponseEntity.ok().build();
+    @PutMapping("/admin/{sessionId}/read")
+    public DataResponse<?> markConversationAsRead(@PathVariable String sessionId) {
+        chatService.markConversationAsRead(sessionId);
+        return new DataResponse<>(HttpStatus.OK.value(), "Mark conversation as read successfully");
     }
 
-    @PostMapping("/{sessionId}/close")
-    public ResponseEntity<Void> closeConversation(@PathVariable String sessionId) {
-        chatService.closeConversation(sessionId);
-        return ResponseEntity.ok().build();
+    @PutMapping("/admin/{sessionId}/status")
+    public DataResponse<String> toggleConversationStatus(@PathVariable String sessionId, @RequestParam String status) {
+        chatService.toggleConversationStatus(sessionId, status);
+        return new DataResponse<>(HttpStatus.OK.value(), "Update conversation status successfully", sessionId);
+    }
+
+    @PostMapping("/admin/{sessionId}/delete")
+    public DataResponse<?> deleteConversation(@PathVariable String sessionId) {
+        chatService.deleteConversation(sessionId);
+        return new DataResponse<>(HttpStatus.OK.value(), "Delete conversation successfully");
     }
 
     // Admin endpoints

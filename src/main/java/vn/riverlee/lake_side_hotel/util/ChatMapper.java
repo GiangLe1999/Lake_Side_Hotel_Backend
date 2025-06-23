@@ -50,8 +50,10 @@ public class ChatMapper {
                 .userEmail(userEmail)
                 .status(conversation.getStatus())
                 .roomId(conversation.getRoomId())
+                .lastMessage(conversation.getLastMessage())
                 .lastMessageAt(conversation.getLastMessageAt())
                 .messages(messages)
+                .isReadByAdmin(conversation.getIsReadByAdmin())
                 .build();
     }
 
@@ -72,7 +74,9 @@ public class ChatMapper {
                 .userEmail(userEmail)
                 .status(conversation.getStatus())
                 .roomId(conversation.getRoomId())
+                .lastMessage(conversation.getLastMessage())
                 .lastMessageAt(conversation.getLastMessageAt())
+                .isReadByAdmin(conversation.getIsReadByAdmin())
                 .build();
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.riverlee.lake_side_hotel.enums.MessageType;
 import vn.riverlee.lake_side_hotel.model.ChatConversation;
 import vn.riverlee.lake_side_hotel.model.ChatMessage;
 
@@ -24,4 +25,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("SELECT m FROM ChatMessage m WHERE m.conversation = :conversation " +
             "ORDER BY m.createdAt DESC")
     List<ChatMessage> findRecentMessages(@Param("conversation") ChatConversation conversation, Pageable pageable);
+
+    List<ChatMessage> findByConversationAndMessageTypeIn(ChatConversation conversation, List<MessageType> messageTypes);
 }

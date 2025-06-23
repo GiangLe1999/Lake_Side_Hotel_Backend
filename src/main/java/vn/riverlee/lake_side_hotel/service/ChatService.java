@@ -16,9 +16,11 @@ public interface ChatService {
 
     PaginationResponse<Object> getMessages(String sessionId, int pageNo, int pageSize);
 
-    void markMessagesAsRead(String sessionId);
-
-    void closeConversation(String sessionId);
+    void deleteConversation(String sessionId);
 
     PaginationResponse<?> getConversations(int pageNo, int pageSize, String search, String sortBy, String status);
+
+    void markConversationAsRead(String sessionId);
+
+    void toggleConversationStatus(String sessionId, String status);
 }

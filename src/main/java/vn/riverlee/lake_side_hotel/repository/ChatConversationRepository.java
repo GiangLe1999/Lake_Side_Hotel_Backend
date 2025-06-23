@@ -28,4 +28,6 @@ public interface ChatConversationRepository extends JpaRepository<ChatConversati
 
     @Query("SELECT COUNT(c) FROM ChatConversation c WHERE c.status = :status")
     long countByStatus(@Param("status") ChatStatus status);
+
+    void deleteBySessionId(String sessionId);
 }

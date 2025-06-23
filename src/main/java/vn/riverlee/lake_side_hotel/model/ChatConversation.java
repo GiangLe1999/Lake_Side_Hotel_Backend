@@ -40,12 +40,18 @@ public class ChatConversation extends AbstractEntity {
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
 
+    @Column(name = "last_message")
+    private String lastMessage;
+
+    @Column(name = "is_read_by_admin")
+    private Boolean isReadByAdmin = false;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "conversation")
     private List<ChatMessage> messages;
 
-    @PrePersist
-    @PreUpdate
-    private void updateLastMessageTime() {
-        this.lastMessageAt = LocalDateTime.now();
-    }
+//    @PrePersist
+//    @PreUpdate
+//    private void updateLastMessageTime() {
+//        this.lastMessageAt = LocalDateTime.now();
+//    }
 }

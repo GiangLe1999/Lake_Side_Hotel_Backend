@@ -20,6 +20,9 @@ public class S3Service {
     @Value("${aws.s3.bucketName}")
     private String bucketName;
 
+    @Value("${aws.s3.bucketUrl}") // https://lake-side-hotel-spring-boot.s3.ap-southeast-1.amazonaws.com/
+    private String bucketUrl;
+
     public S3Service(AmazonS3 amazonS3) {
         this.amazonS3 = amazonS3;
     }
@@ -51,24 +54,57 @@ public class S3Service {
         return fileNames;
     }
 
-    // Xóa file trên S3
-    public String deleteFile(String fileName) {
-        amazonS3.deleteObject(bucketName, fileName);
-        return fileName;
+    // Xóa file trên S3 bằng URL hoặc key
+    public String deleteFile(String fileUrlOrKey) {
+        String objectKey;
+
+        // Kiểm tra nếu là URL đầy đủ hay chỉ là object key
+        if (fileUrlOrKey.startsWith("https://") || fileUrlOrKey.startsWith("http://")) {
+            objectKey = getObjectKeyFromUrl(fileUrlOrKey);
+        } else {
+            objectKey = fileUrlOrKey; // Đã là object key
+        }
+
+        amazonS3.deleteObject(bucketName, objectKey);
+        return objectKey;
     }
 
-    // Xóa nhiều file trên S3
-    public List<String> deleteMultipleFiles(List<String> fileNames) {
+    // Xóa nhiều file trên S3 bằng URL hoặc key
+    public List<String> deleteMultipleFiles(List<String> fileUrlsOrKeys) {
         List<String> results = new ArrayList<>();
 
-        for (String fileName : fileNames) {
-            if (fileName == null || fileName.isEmpty()) {
-                continue; // Bỏ qua key rỗng
+        for (String fileUrlOrKey : fileUrlsOrKeys) {
+            if (fileUrlOrKey == null || fileUrlOrKey.trim().isEmpty()) {
+                continue; // Bỏ qua key/URL rỗng
             }
-            amazonS3.deleteObject(bucketName, fileName);
-            results.add(fileName);
+
+            try {
+                String objectKey;
+
+                // Kiểm tra nếu là URL đầy đủ hay chỉ là object key
+                if (fileUrlOrKey.startsWith("https://") || fileUrlOrKey.startsWith("http://")) {
+                    objectKey = getObjectKeyFromUrl(fileUrlOrKey);
+                } else {
+                    objectKey = fileUrlOrKey; // Đã là object key
+                }
+
+                amazonS3.deleteObject(bucketName, objectKey);
+                results.add(objectKey);
+
+            } catch (IllegalArgumentException e) {
+                // Log lỗi và bỏ qua file không hợp lệ
+                System.err.println("Không thể xóa file: " + fileUrlOrKey + " - " + e.getMessage());
+            }
         }
 
         return results;
+    }
+
+    // Extract Object Key from S3 URL
+    private String getObjectKeyFromUrl(String fileUrl) {
+        if (!fileUrl.startsWith(bucketUrl)) {
+            throw new IllegalArgumentException("Invalid S3 URL: " + fileUrl);
+        }
+        return fileUrl.substring(bucketUrl.length());
     }
 }

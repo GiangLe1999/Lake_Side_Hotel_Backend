@@ -42,10 +42,4 @@ public class AdminChatController {
         adminChatService.assignConversation(sessionId, adminId);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/conversations/{sessionId}/close")
-    public ResponseEntity<Void> closeConversation(@PathVariable String sessionId) {
-        chatService.closeConversation(sessionId);
-        return ResponseEntity.ok().build();
-    }
 }

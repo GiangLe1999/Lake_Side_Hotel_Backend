@@ -5,6 +5,7 @@ import vn.riverlee.lake_side_hotel.dto.request.SendMessageRequest;
 import vn.riverlee.lake_side_hotel.dto.response.ChatConversationResponse;
 import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.model.Room;
 import vn.riverlee.lake_side_hotel.repository.SearchRepository;
 import vn.riverlee.lake_side_hotel.service.ChatService;
 
@@ -27,9 +28,11 @@ import vn.riverlee.lake_side_hotel.model.User;
 import vn.riverlee.lake_side_hotel.repository.ChatConversationRepository;
 import vn.riverlee.lake_side_hotel.repository.ChatMessageRepository;
 import vn.riverlee.lake_side_hotel.repository.UserRepository;
+import vn.riverlee.lake_side_hotel.service.S3Service;
 import vn.riverlee.lake_side_hotel.util.ChatMapper;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +47,8 @@ public class ChatServiceImpl implements ChatService {
     private final SearchRepository searchRepository;
     private final ChatMapper chatMapper;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final S3Service s3Service;
+
 
     // Tạo mới 1 ChatConversation
     public ChatConversationResponse initializeChat(InitChatRequest request, Authentication authentication) {
@@ -82,6 +87,7 @@ public class ChatServiceImpl implements ChatService {
         String senderName = request.getSenderName();
         SenderType senderType = SenderType.USER;
 
+        boolean isAdmin = false;
         // Nếu user đã đăng nhập, lấy tên từ user
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();
@@ -93,6 +99,7 @@ public class ChatServiceImpl implements ChatService {
             // Kiểm tra xem đây có phải admin không
             if (user.getRole().name().equals("ADMIN")) {
                 senderType = SenderType.ADMIN;
+                isAdmin = true;
             }
         }
 
@@ -110,6 +117,11 @@ public class ChatServiceImpl implements ChatService {
         message = messageRepository.save(message);
 
         // Cập nhật thời gian tin cuối của conversation
+
+        if (!isAdmin) {
+            conversation.setIsReadByAdmin(false);
+        }
+        conversation.setLastMessage(request.getMessageType().name().equals("TEXT") ? request.getContent() : request.getMessageType().name().equals("IMAGE") ? "Image attached" : "File attached");
         conversation.setLastMessageAt(LocalDateTime.now());
         conversationRepository.save(conversation);
 
@@ -163,27 +175,56 @@ public class ChatServiceImpl implements ChatService {
         return searchRepository.getConversations(pageNo, pageSize, search, sortBy, status);
     }
 
-    public void markMessagesAsRead(String sessionId) {
+    public void markConversationAsRead(String sessionId) {
         ChatConversation conversation = conversationRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat conversation not found"));
 
-        List<ChatMessage> messages = messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
-        messages.forEach(message -> message.setIsRead(true));
-        messageRepository.saveAll(messages);
+        conversation.setIsReadByAdmin(true);
+        conversationRepository.save(conversation);
     }
 
-    public void closeConversation(String sessionId) {
+    @Override
+    public void toggleConversationStatus(String sessionId, String status) {
+        System.out.println(status);
         ChatConversation conversation = conversationRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Chat conversation not found"));
 
-        conversation.setStatus(ChatStatus.RESOLVED);
+        conversation.setStatus(
+                ChatStatus.RESOLVED.name().equals(status) ? ChatStatus.RESOLVED : ChatStatus.ACTIVE
+        );
         conversationRepository.save(conversation);
+
+        // Notify clients that conversation is closed
+        String message = ChatStatus.RESOLVED.name().equals(status)
+                ? "Conversation has been marked as resolved by admin."
+                : "Conversation has been reactivated by admin.";
+
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + sessionId,
+                ChatMessageResponse.builder()
+                        .content(message)
+                        .senderType(SenderType.SYSTEM)
+                        .messageType(MessageType.SYSTEM_MESSAGE)
+                        .build()
+        );
+    }
+
+    public void deleteConversation(String sessionId) {
+        ChatConversation chatConversation = conversationRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation with session id " + sessionId + " not found"));
+
+        conversationRepository.deleteBySessionId(sessionId);
+
+        List<MessageType> targetTypes = Arrays.asList(MessageType.FILE, MessageType.IMAGE);
+        List<ChatMessage> fileAndImageMessages = messageRepository.findByConversationAndMessageTypeIn(chatConversation, targetTypes);
+
+        s3Service.deleteMultipleFiles(fileAndImageMessages.stream().map(c -> c.getFileUrl()).toList());
 
         // Notify clients that conversation is closed
         messagingTemplate.convertAndSend(
                 "/topic/chat/" + sessionId,
                 ChatMessageResponse.builder()
-                        .content("Cuộc trò chuyện đã được đóng.")
+                        .content("Conversation has been closed by admin.")
                         .senderType(SenderType.SYSTEM)
                         .messageType(MessageType.SYSTEM_MESSAGE)
                         .build()
