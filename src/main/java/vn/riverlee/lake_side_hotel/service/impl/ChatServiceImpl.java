@@ -213,12 +213,21 @@ public class ChatServiceImpl implements ChatService {
         ChatConversation chatConversation = conversationRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Conversation with session id " + sessionId + " not found"));
 
-        conversationRepository.deleteBySessionId(sessionId);
-
         List<MessageType> targetTypes = Arrays.asList(MessageType.FILE, MessageType.IMAGE);
         List<ChatMessage> fileAndImageMessages = messageRepository.findByConversationAndMessageTypeIn(chatConversation, targetTypes);
 
-        s3Service.deleteMultipleFiles(fileAndImageMessages.stream().map(c -> c.getFileUrl()).toList());
+        // Lọc bỏ null và empty fileUrl
+        List<String> fileUrls = fileAndImageMessages.stream()
+                .map(ChatMessage::getFileUrl)
+                .filter(url -> url != null && !url.trim().isEmpty())
+                .toList();
+
+        // Chỉ gọi delete khi có file để xóa
+        if (!fileUrls.isEmpty()) {
+            s3Service.deleteMultipleFiles(fileUrls);
+        }
+
+        conversationRepository.deleteBySessionId(sessionId);
 
         // Notify clients that conversation is closed
         messagingTemplate.convertAndSend(

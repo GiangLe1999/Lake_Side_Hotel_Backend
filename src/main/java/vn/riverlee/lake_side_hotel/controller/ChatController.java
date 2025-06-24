@@ -62,7 +62,7 @@ public class ChatController {
         return new DataResponse<>(HttpStatus.OK.value(), "Update conversation status successfully", sessionId);
     }
 
-    @PostMapping("/admin/{sessionId}/delete")
+    @DeleteMapping("/admin/{sessionId}/delete")
     public DataResponse<?> deleteConversation(@PathVariable String sessionId) {
         chatService.deleteConversation(sessionId);
         return new DataResponse<>(HttpStatus.OK.value(), "Delete conversation successfully");
