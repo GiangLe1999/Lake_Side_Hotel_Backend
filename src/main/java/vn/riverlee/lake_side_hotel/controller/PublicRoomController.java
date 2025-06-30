@@ -12,6 +12,7 @@ import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.DataResponse;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.dto.response.RoomFilterCriteriaResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.service.RoomService;
@@ -58,5 +59,26 @@ public class PublicRoomController {
         log.info("Get room with ID: {}", id);
         RoomResponse room = roomService.getRoom(id);
         return new DataResponse<>(HttpStatus.OK.value(), "Get room successfully", room);
+    }
+
+    // Get room information with full details
+    @GetMapping("/filter-criteria")
+    public DataResponse<RoomFilterCriteriaResponse> getRoomFilterCriteria() {
+        log.info("Get room filter criteria");
+        RoomFilterCriteriaResponse roomFilterCriteriaList = roomService.getRoomFilterCriteria();
+        return new DataResponse<>(HttpStatus.OK.value(), "Get room successfully", roomFilterCriteriaList);
+    }
+
+    // Get room information with full details
+    // URL với multiple search parameters:
+    // GET /api/rooms/advanced-search?pageNo=0&pageSize=6&sortBy=-price&amenities~WiFi_TV_Pool&features~Balcony_Sea View&occupancy~2_4&beds~1 Queen Bed&price>=100&rating>=3
+    @GetMapping("/advanced-search")
+    public DataResponse<?> getRoomFilterCriteria(@RequestParam(defaultValue = "0", required = false) int pageNo,
+                                                 @Min(6) @RequestParam(defaultValue = "6", required = false) int pageSize,
+                                                 @RequestParam(required = false) String sortBy,
+                                                 @RequestParam(required = false) String... search
+                                                 ) {
+        log.info("Request of advance search with criteria and pagination and sorting");
+        return new DataResponse<>(HttpStatus.OK.value(), "Get rooms with advance search", roomService.advanceSearchByCriteria(pageNo, pageSize, sortBy, search));
     }
 }

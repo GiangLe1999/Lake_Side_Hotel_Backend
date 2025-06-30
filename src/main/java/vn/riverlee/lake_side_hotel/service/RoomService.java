@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.dto.response.RoomFilterCriteriaResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 
@@ -29,4 +30,8 @@ public interface RoomService {
 //    PaginationResponse<Object> getRooms(int pageNo, int pageSize);
 
     List<RoomResponse> getRoomsForHomepage();
+
+    RoomFilterCriteriaResponse getRoomFilterCriteria();
+
+    PaginationResponse<?> advanceSearchByCriteria(int pageNo, @Min(10) int pageSize, String sortBy, String[] search);
 }

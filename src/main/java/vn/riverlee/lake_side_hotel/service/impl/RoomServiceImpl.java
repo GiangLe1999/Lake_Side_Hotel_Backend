@@ -10,14 +10,18 @@ import org.springframework.stereotype.Service;
 import vn.riverlee.lake_side_hotel.dto.request.EditRoomRequest;
 import vn.riverlee.lake_side_hotel.dto.request.RoomRequest;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
+import vn.riverlee.lake_side_hotel.dto.response.RoomFilterCriteriaResponse;
 import vn.riverlee.lake_side_hotel.dto.response.RoomResponse;
 import vn.riverlee.lake_side_hotel.exception.ResourceNotFoundException;
 import vn.riverlee.lake_side_hotel.model.Room;
 import vn.riverlee.lake_side_hotel.repository.RoomRepository;
+import vn.riverlee.lake_side_hotel.repository.SearchRepository;
 import vn.riverlee.lake_side_hotel.service.RoomService;
 import vn.riverlee.lake_side_hotel.service.S3Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -26,7 +30,7 @@ import java.util.List;
 public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final S3Service s3Service;
-
+    private final SearchRepository searchRepository;
 
     @Override
     public long addNewRoom(RoomRequest request) throws IOException {
@@ -63,7 +67,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<String> getRoomTypes() {
-        return roomRepository.getDistinctRoomTypes();
+        return roomRepository.findDistinctRoomTypes();
     }
 
     @Override
@@ -264,10 +268,39 @@ public class RoomServiceImpl implements RoomService {
                         .thumbnailKey(room.getThumbnailKey())
                         .imageKeys(room.getImageKeys())
                         .price(room.getPrice())
+                        .reviewCount(room.getReviewCount())
+                        .avgRating(room.getAvgRating())
                         .createdAt(room.getCreatedAt())
                         .build())
                 .toList();
 
         return roomResponse;
+    }
+
+    @Override
+    public RoomFilterCriteriaResponse getRoomFilterCriteria() {
+        BigDecimal minPrice = roomRepository.findMinPrice();
+        BigDecimal maxPrice = roomRepository.findMaxPrice();
+        List<String> roomTypes = roomRepository.findDistinctRoomTypes();
+        List<String> roomBeds = roomRepository.findDistinctRoomBeds();
+        List<String> amenities = roomRepository.findDistinctAmenities();
+        List<String> features = roomRepository.findDistinctFeatures();
+        List<Integer> occupancyTypes = roomRepository.findDistinctOccupancyTypes();
+        Collections.sort(occupancyTypes);
+
+        return RoomFilterCriteriaResponse.builder()
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .roomTypes(roomTypes)
+                .roomBeds(roomBeds)
+                .amenities(amenities)
+                .features(features)
+                .occupancyTypes(occupancyTypes)
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String... search) {
+        return searchRepository.advanceSearchForRooms(pageNo, pageSize, sortBy, search);
     }
 }

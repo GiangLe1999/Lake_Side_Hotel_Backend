@@ -8,7 +8,7 @@ import vn.riverlee.lake_side_hotel.dto.response.ChatMessageResponse;
 import vn.riverlee.lake_side_hotel.dto.response.PaginationResponse;
 
 public interface ChatService {
-    ChatConversationResponse initializeChat(InitChatRequest request, Authentication authentication);
+    String initializeChat(InitChatRequest request, Authentication authentication);
 
     ChatMessageResponse sendMessage(SendMessageRequest request, Authentication authentication);
 

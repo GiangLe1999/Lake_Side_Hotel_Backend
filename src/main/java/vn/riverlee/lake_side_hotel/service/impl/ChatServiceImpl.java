@@ -51,7 +51,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     // Tạo mới 1 ChatConversation
-    public ChatConversationResponse initializeChat(InitChatRequest request, Authentication authentication) {
+    public String initializeChat(InitChatRequest request, Authentication authentication) {
         ChatConversation conversation = ChatConversation.builder()
                 // sinh sessionId ngẫu nhiên
                 .sessionId(generateSessionId())
@@ -75,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
 
         conversation = conversationRepository.save(conversation);
 
-        return chatMapper.toDTO(conversation);
+        return conversation.getSessionId();
     }
 
     public ChatMessageResponse sendMessage(SendMessageRequest request, Authentication authentication) {

@@ -27,11 +27,11 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/init")
-    public DataResponse<ChatConversationResponse> initializeChat(
+    public DataResponse<String> initializeChat(
             @Valid @RequestBody InitChatRequest request,
             Authentication authentication) {
-        ChatConversationResponse conversation = chatService.initializeChat(request, authentication);
-        return new DataResponse<>(HttpStatus.CREATED.value(), "Initialize chat successfully", conversation);
+        String sessionId = chatService.initializeChat(request, authentication);
+        return new DataResponse<>(HttpStatus.CREATED.value(), "Initialize chat successfully", sessionId);
     }
 
     @GetMapping("/{sessionId}")
