@@ -82,7 +82,7 @@ public class SearchRepository {
 
         // Thực thi truy vấn được xây dựng từ Criteria API và lấy dữ liệu từ cơ sở dữ liệu.
         // Cụ thể, nó sử dụng entityManager để tạo và thực thi một truy vấn, với các tham số phân trang (pageNo và pageSize) và trả về kết quả dưới dạng danh sách đối tượng (List).
-        return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
+        return entityManager.createQuery(query).setFirstResult(pageNo * pageSize).setMaxResults(pageSize).getResultList();
     }
 
     /**
