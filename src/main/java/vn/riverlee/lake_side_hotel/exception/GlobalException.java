@@ -244,6 +244,8 @@ public class GlobalException {
         return errorResponse;
     }
 
+
+
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(BAD_REQUEST)
     @ApiResponses(value = {

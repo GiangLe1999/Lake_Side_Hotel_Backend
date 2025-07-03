@@ -75,6 +75,12 @@ aws:
     bucketName: ${AWS_S3_BUCKET}
     bucketUrl: ${AWS_S3_BUCKET_URL}
 
+stripe:
+  secret:
+    key: ${STRIPE_SECRET_KEY}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_KEY}
+
 frontend:
   url: ${FRONTEND_URL}
 

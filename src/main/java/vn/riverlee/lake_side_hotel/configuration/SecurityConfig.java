@@ -100,6 +100,7 @@ public class SecurityConfig {
                         .requestMatchers("/rooms/public/**").permitAll()
                         .requestMatchers("/reviews/public/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
+                        .requestMatchers("/payments/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
 
                         // Các endpoint dành cho USER

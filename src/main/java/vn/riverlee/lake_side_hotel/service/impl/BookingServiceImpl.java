@@ -54,19 +54,6 @@ public class BookingServiceImpl implements BookingService {
 
         LocalDate checkInDate = request.getCheckInDate();
         LocalDate checkOutDate = request.getCheckOutDate();
-        BigDecimal roomPrice = room.getPrice();
-        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-        BigDecimal taxAmount = roomPrice
-                .multiply(BigDecimal.valueOf(taxRate))
-                .setScale(0, RoundingMode.HALF_UP); // tương tự Math.round
-        BigDecimal reCalculatedTotalPrice = roomPrice
-                .multiply(BigDecimal.valueOf(daysBetween))
-                .add(taxAmount)
-                .add(BigDecimal.valueOf(serviceFee));
-
-        if (reCalculatedTotalPrice.compareTo(request.getTotalPrice()) != 0) {
-            throw new BadRequestException("Total price mismatch. Please check your booking information.");
-        }
 
         List<Booking> conflictBookings = bookingRepository.findAllByCheckInDateGreaterThanEqualAndCheckOutDateLessThanEqualAndRoomAndBookingStatus(
                 checkInDate,
