@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.riverlee.lake_side_hotel.dto.request.PaymentRequest;
 import vn.riverlee.lake_side_hotel.dto.response.PaymentResponse;
+import vn.riverlee.lake_side_hotel.dto.response.PaymentResultResponse;
 import vn.riverlee.lake_side_hotel.enums.BookingStatus;
 import vn.riverlee.lake_side_hotel.enums.PaymentStatus;
 import vn.riverlee.lake_side_hotel.model.*;
@@ -37,7 +38,19 @@ public class PaymentService {
 
         // Kiểm tra booking đã có payment chưa
         if (booking.getPayment() != null) {
-            throw new RuntimeException("Payment already exists for this booking");
+            Payment existingPayment = booking.getPayment();
+
+            // Lấy PaymentIntent từ Stripe để đảm bảo thông tin mới nhất
+            PaymentIntent existingPaymentIntent = PaymentIntent.retrieve(existingPayment.getStripePaymentIntentId());
+
+            // Trả về PaymentResponse với thông tin đã có
+            return PaymentResponse.builder()
+                    .paymentIntentId(existingPaymentIntent.getId())
+                    .clientSecret(existingPaymentIntent.getClientSecret())
+                    .status(existingPaymentIntent.getStatus())
+                    .amount(existingPayment.getAmount())
+                    .currency(existingPayment.getCurrency())
+                    .build();
         }
 
         // Tạo PaymentIntent với Stripe
@@ -95,13 +108,14 @@ public class PaymentService {
         Booking booking = payment.getBooking();
         booking.setPaymentStatus(PaymentStatus.PAID);
         booking.setBookingStatus(BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(PaymentStatus.PAID);
 
         paymentRepository.save(payment);
         bookingRepository.save(booking);
 
         messagingTemplate.convertAndSend(
                 "/topic/payment/" + booking.getId(),
-                "success"
+                new PaymentResultResponse("success", null)
         );
 
         log.info("Payment completed successfully for booking: {}", booking.getId());
@@ -117,14 +131,13 @@ public class PaymentService {
 
         Booking booking = payment.getBooking();
         booking.setPaymentStatus(PaymentStatus.FAILED);
-        booking.setBookingStatus(BookingStatus.CANCELLED);
 
         paymentRepository.save(payment);
         bookingRepository.save(booking);
 
         messagingTemplate.convertAndSend(
                 "/topic/payment/" + booking.getId(),
-                "failed"
+                new PaymentResultResponse("failed", failureReason)
         );
 
         log.error("Payment failed for booking: {}. Reason: {}", booking.getId(), failureReason);
